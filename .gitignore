@@ -1,0 +1,27 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# env
+.env
+.env.production
+
+# logs
+npm-debug.log*
+pnpm-debug.log*
+
+# editor/OS
+.DS_Store
+.vscode/
+
+# deploy
+.vercel/
+
+# agent-specific working files — not part of the shipped site
+.claude/
+AGENTS.md
+CLAUDE.md
+NOTES.md

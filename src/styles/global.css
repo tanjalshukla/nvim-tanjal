@@ -1,0 +1,229 @@
+@import 'tailwindcss';
+
+/* Iosevka — subsetted to Latin + the handful of extra glyphs the site uses.
+   See scripts/build-fonts.sh for how public/fonts/*.woff2 is generated. */
+@font-face {
+  font-family: 'Iosevka';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/iosevka-latin-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Iosevka';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/iosevka-latin-700.woff2') format('woff2');
+}
+
+/* Rosé Pine design tokens (SPEC.md §5). Values verified against the official palette. */
+:root,
+:root[data-theme='main'] {
+  --base: #191724;
+  --surface: #1f1d2e;
+  --overlay: #26233a;
+  --muted: #6e6a86;
+  --subtle: #908caa;
+  --text: #e0def4;
+  --love: #eb6f92;
+  --gold: #f6c177;
+  --rose: #ebbcba;
+  --pine: #31748f;
+  --foam: #9ccfd8;
+  --iris: #c4a7e7;
+  --hl-low: #21202e;
+  --hl-med: #403d52;
+  --hl-high: #524f67;
+}
+
+:root[data-theme='dawn'] {
+  --base: #faf4ed;
+  --surface: #fffaf3;
+  --overlay: #f2e9e1;
+  --muted: #9893a5;
+  --subtle: #797593;
+  --text: #575279;
+  --love: #b4637a;
+  --gold: #ea9d34;
+  --rose: #d7827e;
+  --pine: #286983;
+  --foam: #56949f;
+  --iris: #907aa9;
+  --hl-low: #f4ede8;
+  --hl-med: #dfdad9;
+  --hl-high: #cecacd;
+}
+
+@theme inline {
+  --font-mono: 'Iosevka', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-base: var(--base);
+  --color-surface: var(--surface);
+  --color-overlay: var(--overlay);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-text: var(--text);
+  --color-love: var(--love);
+  --color-gold: var(--gold);
+  --color-rose: var(--rose);
+  --color-pine: var(--pine);
+  --color-foam: var(--foam);
+  --color-iris: var(--iris);
+  --color-hl-low: var(--hl-low);
+  --color-hl-med: var(--hl-med);
+  --color-hl-high: var(--hl-high);
+}
+
+html {
+  font-family: var(--font-mono);
+  background: var(--base);
+  color: var(--text);
+}
+
+body {
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+@media (min-width: 640px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+::selection {
+  background: var(--hl-med);
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--foam);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Buffer content column: markdown-in-a-buffer heading style (SPEC.md §5.3). */
+.buffer-prose {
+  max-width: 80ch;
+}
+
+.buffer-prose h1,
+.buffer-prose h2,
+.buffer-prose h3 {
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.buffer-prose h1 {
+  color: var(--iris);
+}
+.buffer-prose h1::before {
+  content: '# ';
+  color: var(--iris);
+}
+
+.buffer-prose h2 {
+  color: var(--foam);
+}
+.buffer-prose h2::before {
+  content: '## ';
+  color: var(--foam);
+}
+
+.buffer-prose h3 {
+  color: var(--rose);
+}
+.buffer-prose h3::before {
+  content: '### ';
+  color: var(--rose);
+}
+
+.buffer-prose a {
+  color: var(--iris);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.buffer-prose code {
+  color: var(--rose);
+}
+
+.buffer-prose > * + * {
+  margin-top: 1em;
+}
+
+/* Line-number gutter (SPEC.md §6.3): CSS counters over block-level children,
+   not real per-visual-line numbering — a deliberate simplification the spec
+   calls for. Each content block is wrapped `<div class="line">` so the
+   gutter number's ::before lives on a different element than a heading's
+   own `# ` prefix ::before — the two can't share one pseudo-element. Gutter
+   numbers are never real DOM text: unselectable and excluded from
+   copy-paste / screen-reader output by default in evergreen browsers, with
+   no aria-hidden attribute needed. */
+@media (max-width: 480px) {
+  .buffer-gutter .line::before {
+    content: none;
+  }
+}
+
+.buffer-prose {
+  counter-reset: line;
+}
+
+.buffer-gutter .line {
+  counter-increment: line;
+  position: relative;
+}
+
+.buffer-gutter .line::before {
+  content: counter(line);
+  position: absolute;
+  left: -3.25rem;
+  top: 0;
+  width: 2.5rem;
+  text-align: right;
+  color: var(--muted);
+  user-select: none;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--overlay);
+  color: var(--text);
+  padding: 0.5rem 1rem;
+}
+
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

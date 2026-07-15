@@ -1,0 +1,87 @@
+---
+// File-explorer sidebar (SPEC.md §6.1): primary nav, nvim-tree style, always
+// expanded. Desktop renders a fixed left column; below 1024px the same tree
+// renders inside a native <details> drawer so it's keyboard/AT-clean without
+// the island. The <summary> is styled to read as the statusline's "≡ files"
+// segment (Statusline.astro positions this component inline in its row).
+import ExplorerTree from './ExplorerTree.astro';
+import { explorerTree } from '../../site.config';
+
+interface Props {
+  currentPath: string;
+  mode?: 'desktop' | 'drawer';
+}
+
+const { currentPath, mode = 'desktop' } = Astro.props;
+---
+
+{
+  mode === 'desktop' ? (
+    <nav aria-label="explorer" class="explorer-desktop">
+      <ExplorerTree nodes={explorerTree} currentPath={currentPath} />
+    </nav>
+  ) : (
+    <details class="explorer-drawer">
+      <summary class="explorer-drawer-trigger">
+        <span aria-hidden="true">≡</span> files
+      </summary>
+      <nav aria-label="explorer" class="explorer-drawer-panel">
+        <ExplorerTree nodes={explorerTree} currentPath={currentPath} />
+      </nav>
+    </details>
+  )
+}
+
+<style>
+  .explorer-desktop {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .explorer-desktop {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 15rem;
+      overflow-y: auto;
+      background: var(--surface);
+      padding: 1.5rem 1rem;
+      border-right: 1px solid var(--hl-high);
+    }
+  }
+
+  .explorer-drawer {
+    position: relative;
+  }
+
+  @media (min-width: 1024px) {
+    .explorer-drawer {
+      display: none;
+    }
+  }
+
+  .explorer-drawer-trigger {
+    cursor: pointer;
+    color: var(--subtle);
+    list-style: none;
+  }
+
+  .explorer-drawer-trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .explorer-drawer-trigger:hover {
+    color: var(--text);
+  }
+
+  .explorer-drawer[open] .explorer-drawer-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: var(--overlay);
+    padding: 1.5rem;
+    overflow-y: auto;
+  }
+</style>

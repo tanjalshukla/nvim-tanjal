@@ -1,0 +1,57 @@
+---
+import Buffer from '../layouts/Buffer.astro';
+import { siteConfig } from '../../site.config';
+
+// TODO(owner): set/update this each time now.md's content actually changes.
+const lastEdited = '2026-07-15';
+---
+
+<Buffer
+  title={`now.md — ${siteConfig.name}`}
+  description="What tanjal is building, learning, and reading right now."
+  currentPath="/now"
+>
+  <div class="line">
+    <p class="last-edited">last edited: {lastEdited}</p>
+  </div>
+  <div class="line">
+    <h1>now.md</h1>
+  </div>
+  <div class="line">
+    <h2 id="building">building</h2>
+  </div>
+  <div class="line">
+    <p>
+      Working through a six-project arc in Rust and Go, aimed at {siteConfig.focus}. Currently on
+      TODO(owner): name the current project (SPEC.md §14 item 5) — TODO(owner): one honest
+      paragraph on where it stands.
+    </p>
+  </div>
+  <div class="line">
+    <h2 id="learning">learning</h2>
+  </div>
+  <div class="line">
+    <p>
+      The arc is forcing real fluency in Rust's ownership model and Go's concurrency primitives —
+      the kind of thing that's easy to nod along to and hard to actually internalize without
+      building something that breaks. The day job ({siteConfig.role}) feeds into this at most
+      tangentially — TODO(owner): the one sentence, if there's a real connection worth naming.
+    </p>
+  </div>
+  <div class="line">
+    <h2>reading</h2>
+  </div>
+  <div class="line">
+    <p>
+      Currently about a third of the way through <em>{siteConfig.reading}</em>. Full log, queue,
+      and finished books live on <a href="/library">library.md</a>.
+    </p>
+  </div>
+</Buffer>
+
+<style>
+  .last-edited {
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+</style>

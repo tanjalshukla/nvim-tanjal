@@ -1,0 +1,20 @@
+---
+import Buffer from '../layouts/Buffer.astro';
+import { siteConfig } from '../../site.config';
+---
+
+<Buffer
+  title={`E212 — ${siteConfig.name}`}
+  description="Page not found."
+  currentPath={Astro.url.pathname}
+>
+  <div class="line">
+    <h1>E212: file not found</h1>
+  </div>
+  <div class="line">
+    <p>The buffer you asked for doesn't exist.</p>
+  </div>
+  <div class="line">
+    <p><a href="/">:e index.md</a> — back to a real buffer.</p>
+  </div>
+</Buffer>

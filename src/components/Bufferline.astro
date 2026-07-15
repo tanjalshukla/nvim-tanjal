@@ -1,0 +1,48 @@
+---
+// Bufferline (SPEC.md §6.2): shows buffers opened *this session*. Static
+// default is the current file only — the island (M3) appends visited buffers
+// via sessionStorage and turns this into a real multi-tab bufferline.
+import { resolveBuffer } from '../../site.config';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+const current = resolveBuffer(currentPath);
+---
+
+<nav aria-label="buffers" class="bufferline">
+  <a href={current.path} class="buffer-tab buffer-tab-active" aria-current="page">
+    <span class="buffer-marker" aria-hidden="true">●</span>
+    {current.label}
+  </a>
+</nav>
+
+<style>
+  .bufferline {
+    display: flex;
+    overflow-x: auto;
+    background: var(--surface);
+    border-bottom: 1px solid var(--hl-high);
+  }
+
+  .buffer-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.625rem 1rem;
+    color: var(--subtle);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .buffer-tab-active {
+    color: var(--text);
+    background: var(--base);
+  }
+
+  .buffer-marker {
+    color: var(--rose);
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+import Buffer from '../layouts/Buffer.astro';
+import Neofetch from '../components/Neofetch.astro';
+import { siteConfig } from '../../site.config';
+---
+
+<Buffer
+  title={`${siteConfig.name} — ${siteConfig.tagline}`}
+  description={siteConfig.tagline}
+  currentPath="/"
+>
+  <div class="line">
+    <Neofetch />
+  </div>
+  <div class="line">
+    <h2>recent files</h2>
+  </div>
+  <div class="line">
+    <ul class="oldfiles">
+      <li><a href="/now">now.md</a></li>
+      <li><a href="/library">library.md</a></li>
+      <li>
+        <a href={siteConfig.links.resume} target="_blank" rel="noopener">resume.pdf ↗</a>
+      </li>
+    </ul>
+  </div>
+</Buffer>
+
+<style>
+  .oldfiles {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .oldfiles a {
+    color: var(--iris);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .oldfiles a::before {
+    content: '~/tanjal/';
+    color: var(--muted);
+  }
+</style>

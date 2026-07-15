@@ -1,0 +1,97 @@
+---
+import type { TreeNode } from '../../site.config';
+
+interface Props {
+  nodes: TreeNode[];
+  currentPath: string;
+}
+
+const { nodes, currentPath } = Astro.props;
+---
+
+<ul class="tree">
+  {
+    nodes.map((node) =>
+      node.type === 'dir' ? (
+        <li class="tree-dir">
+          <span class="tree-label">{node.label}</span>
+          <Astro.self nodes={node.children} currentPath={currentPath} />
+        </li>
+      ) : node.path ? (
+        <li>
+          <a
+            href={node.path}
+            class="tree-entry"
+            class:list={{ 'tree-entry-current': currentPath === node.path }}
+            target={node.type === 'symlink' ? '_blank' : undefined}
+            rel={node.type === 'symlink' ? 'noopener' : undefined}
+            aria-current={currentPath === node.path ? 'page' : undefined}
+          >
+            {node.label}
+          </a>
+        </li>
+      ) : (
+        <li>
+          <span class="tree-entry tree-entry-pending" aria-disabled="true">
+            {node.label}
+            <span class="sr-only"> (link pending, owner to provide)</span>
+          </span>
+        </li>
+      )
+    )
+  }
+</ul>
+
+<style>
+  .tree {
+    list-style: none;
+  }
+
+  .tree > li {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  /* Box-drawing connectors are decorative ::before content — never real DOM
+     text, so they can't leak into copy-paste or screen-reader output. */
+  .tree > li::before {
+    content: '├── ';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+  }
+
+  .tree > li:last-child::before {
+    content: '└── ';
+  }
+
+  .tree-dir > .tree {
+    margin-left: 0.375rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--hl-high);
+  }
+
+  .tree-label {
+    color: var(--subtle);
+  }
+
+  .tree-entry {
+    color: var(--subtle);
+    text-decoration: none;
+  }
+
+  .tree-entry:hover {
+    color: var(--text);
+    background: var(--hl-low);
+  }
+
+  .tree-entry-current {
+    color: var(--text);
+    background: var(--hl-low);
+  }
+
+  .tree-entry-pending {
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+</style>

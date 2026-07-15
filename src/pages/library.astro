@@ -1,0 +1,58 @@
+---
+import Buffer from '../layouts/Buffer.astro';
+import { siteConfig } from '../../site.config';
+
+const queue = [
+  'Effective Java',
+  'A Philosophy of Software Design',
+  'Database Internals',
+  'Java Concurrency in Practice',
+];
+---
+
+<Buffer
+  title={`library.md — ${siteConfig.name}`}
+  description="The reading log — currently reading, queue, and finished."
+  currentPath="/library"
+>
+  <div class="line">
+    <h1>library.md</h1>
+  </div>
+  <div class="line">
+    <h2>reading now</h2>
+  </div>
+  <div class="line">
+    <ul class="library-list">
+      <li>{siteConfig.reading} <span class="muted-note">— ~⅓ through</span></li>
+    </ul>
+  </div>
+  <div class="line">
+    <h2>queue</h2>
+  </div>
+  <div class="line">
+    <!-- TODO(owner): confirm order (SPEC.md §14 item — queue ordering). -->
+    <ol class="library-list">
+      {queue.map((title) => <li>{title}</li>)}
+    </ol>
+  </div>
+  <div class="line">
+    <h2>finished</h2>
+  </div>
+  <div class="line">
+    <p class="muted-note">TODO(owner): populate as books finish — title · year finished · optional note.</p>
+  </div>
+</Buffer>
+
+<style>
+  .library-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding-left: 1.25rem;
+  }
+
+  .muted-note {
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+</style>

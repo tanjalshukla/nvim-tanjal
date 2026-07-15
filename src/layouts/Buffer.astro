@@ -1,0 +1,98 @@
+---
+// The "editor" frame every page renders inside (SPEC.md §4, §6). Composes
+// Explorer (primary nav), Bufferline (session tabs), the gutter+content
+// buffer area, and the statusline/command-line dock.
+import '../styles/global.css';
+import Explorer from '../components/Explorer.astro';
+import Bufferline from '../components/Bufferline.astro';
+import Statusline from '../components/Statusline.astro';
+import CommandLine from '../components/CommandLine.astro';
+import { siteConfig } from '../../site.config';
+
+interface Props {
+  title: string;
+  description: string;
+  currentPath: string;
+}
+
+const { title, description, currentPath } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL(currentPath, siteConfig.domain).toString()} />
+    <!-- No-flash theme init: must run before first paint. Not the keyboard
+         island (§7) — a tiny, separate FOUC guard, same pattern as the
+         theme-toggle click handler in Statusline.astro. -->
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var theme = stored === 'dawn' || stored === 'main' ? stored : 'main';
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'main');
+        }
+      })();
+    </script>
+  </head>
+  <body class="bg-base text-text">
+    <a href="#buffer-content" class="skip-link">Skip to content</a>
+    <Explorer currentPath={currentPath} mode="desktop" />
+    <div class="main-column">
+      <Bufferline currentPath={currentPath} />
+      <main id="buffer-content" class="buffer-gutter">
+        <div class="buffer-prose">
+          <slot />
+        </div>
+      </main>
+      <div class="bottom-dock">
+        <Statusline currentPath={currentPath} />
+        <CommandLine part="row" />
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  .main-column {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  @media (min-width: 1024px) {
+    .main-column {
+      margin-left: 15rem;
+    }
+  }
+
+  .buffer-gutter {
+    flex: 1;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  @media (min-width: 480px) {
+    .buffer-gutter {
+      padding-left: 3.25rem;
+    }
+  }
+
+  .bottom-dock {
+    position: sticky;
+    bottom: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+  }
+</style>
