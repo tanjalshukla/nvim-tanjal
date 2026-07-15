@@ -1,12 +1,14 @@
 ---
-// The "editor" frame every page renders inside (SPEC.md §4, §6). Composes
-// Explorer (primary nav), Bufferline (session tabs), the gutter+content
-// buffer area, and the statusline/command-line dock.
+// The "editor" frame every page renders inside (SPEC.md §4, §6). §6.0: a
+// bounded window on a desktop, not a full-bleed page — everything (explorer,
+// bufferline, buffer, statusline, cmdline) lives inside one bordered box.
 import '../styles/global.css';
 import Explorer from '../components/Explorer.astro';
 import Bufferline from '../components/Bufferline.astro';
 import Statusline from '../components/Statusline.astro';
 import CommandLine from '../components/CommandLine.astro';
+import FinderOverlay from '../components/FinderOverlay.astro';
+import HelpOverlay from '../components/HelpOverlay.astro';
 import { siteConfig } from '../../site.config';
 
 interface Props {
@@ -28,55 +30,87 @@ const { title, description, currentPath } = Astro.props;
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={new URL(currentPath, siteConfig.domain).toString()} />
-    <!-- No-flash theme init: must run before first paint. Not the keyboard
-         island (§7) — a tiny, separate FOUC guard, same pattern as the
-         theme-toggle click handler in Statusline.astro. -->
+    <!-- No-flash theme/ascii init: must run before first paint. Not the
+         keyboard island (§7) — a tiny, separate FOUC guard, same pattern as
+         the theme-toggle click handler in Statusline.astro. -->
     <script is:inline>
       (function () {
         try {
           var stored = localStorage.getItem('theme');
-          var theme = stored === 'dawn' || stored === 'main' ? stored : 'main';
+          var theme = stored === 'light' || stored === 'dark' ? stored : 'dark';
           document.documentElement.setAttribute('data-theme', theme);
         } catch (e) {
-          document.documentElement.setAttribute('data-theme', 'main');
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        try {
+          document.documentElement.setAttribute(
+            'data-ascii',
+            localStorage.getItem('ascii') === 'true' ? 'true' : 'false',
+          );
+        } catch (e) {
+          document.documentElement.setAttribute('data-ascii', 'false');
         }
       })();
     </script>
   </head>
-  <body class="bg-base text-text">
+  <body class="bg-bg-d text-fg">
     <a href="#buffer-content" class="skip-link">Skip to content</a>
-    <Explorer currentPath={currentPath} mode="desktop" />
-    <div class="main-column">
-      <Bufferline currentPath={currentPath} />
-      <main id="buffer-content" class="buffer-gutter">
-        <div class="buffer-prose">
-          <slot />
+    <div class="window">
+      <div class="window-body">
+        <Explorer currentPath={currentPath} mode="desktop" />
+        <div class="main-column">
+          <Bufferline currentPath={currentPath} />
+          <main id="buffer-content" class="buffer-gutter">
+            <div class="buffer-prose">
+              <slot />
+            </div>
+          </main>
+          <div class="bottom-dock">
+            <Statusline currentPath={currentPath} />
+            <CommandLine />
+          </div>
         </div>
-      </main>
-      <div class="bottom-dock">
-        <Statusline currentPath={currentPath} />
-        <CommandLine part="row" />
       </div>
     </div>
+    <FinderOverlay />
+    <HelpOverlay />
+    <script>
+      import '../components/islands/cmdline.ts';
+    </script>
   </body>
 </html>
 
 <style>
-  .main-column {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
+  .window {
+    background: var(--bg0);
+    border: 1px solid var(--bg3);
+    min-height: 88vh;
+    box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.35);
   }
 
-  @media (min-width: 1024px) {
-    .main-column {
-      margin-left: 15rem;
+  @media (min-width: 768px) {
+    .window {
+      max-width: 1080px;
+      margin: 2.5rem auto;
+      border-radius: 4px;
     }
+  }
+
+  .window-body {
+    display: flex;
+    min-height: inherit;
+  }
+
+  .main-column {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
   }
 
   .buffer-gutter {
     flex: 1;
-    padding-top: 2rem;
+    padding-top: 1.25rem;
     padding-bottom: 2rem;
     padding-right: 1.5rem;
     padding-left: 1.5rem;

@@ -1,82 +1,54 @@
 ---
-// Command-line row (SPEC.md §6.4 second entry): a real `<input>` so mobile
-// keyboards work. The trigger button lives in the statusline (a real tap
-// path per SPEC.md §9) and the row itself renders below it, closed by
-// default. Full behavior — opening on `:`, the command grammar, closing on
-// Esc/submit — is wired by the island (M3). Progressive enhancement: every
-// destination this can reach is also a plain link elsewhere in the chrome.
-interface Props {
-  part: 'trigger' | 'row';
-}
-
-const { part } = Astro.props;
+// Command-line row (SPEC.md §6.5): always visible at the window's bottom
+// edge — the `:` itself is the tap target (a <label for>, so clicking it
+// focuses the input with zero JS). This replaces the v1 design (a separate
+// trigger button that toggled a hidden row) — that button was the
+// unspecced statusline icon the v2 revision calls out for removal; a
+// permanently-visible row is simpler and matches §6.5's wording directly.
+// The island (M3) wires the command grammar on top of this static shell.
 ---
 
-{
-  part === 'trigger' ? (
-    <button
-      type="button"
-      id="cmdline-trigger"
-      class="cmdline-trigger"
-      aria-label="Open command line"
-      aria-controls="cmdline-row"
-      aria-expanded="false"
-    >
-      :
-    </button>
-  ) : (
-    <div class="cmdline-row" id="cmdline-row" hidden>
-      <label for="cmdline-input" class="cmdline-prompt" aria-hidden="true">
-        :
-      </label>
-      <input
-        type="text"
-        id="cmdline-input"
-        class="cmdline-input"
-        autocomplete="off"
-        autocapitalize="off"
-        spellcheck="false"
-        aria-label="Command line"
-      />
-    </div>
-  )
-}
+<div class="cmdline-row" id="cmdline-row">
+  <label for="cmdline-input" class="cmdline-prompt">:</label>
+  <input
+    type="text"
+    id="cmdline-input"
+    class="cmdline-input"
+    autocomplete="off"
+    autocapitalize="off"
+    spellcheck="false"
+    aria-label="Command line"
+  />
+  <span class="cmdline-message" id="cmdline-message" role="status" hidden></span>
+</div>
 
 <style>
-  .cmdline-trigger {
-    color: var(--gold);
-    background: none;
-    border: none;
-    cursor: pointer;
-    font: inherit;
-    font-weight: 700;
-    padding: 0.125rem 0.375rem;
-  }
-
-  .cmdline-trigger:hover {
-    color: var(--text);
-  }
-
   .cmdline-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.375rem 0.75rem;
-    background: var(--base);
-    border-top: 1px solid var(--hl-high);
+    background: var(--bg0);
+    border-top: 1px solid var(--bg3);
   }
 
   .cmdline-prompt {
-    color: var(--gold);
+    color: var(--yellow);
     font-weight: 700;
+    cursor: text;
   }
 
   .cmdline-input {
     flex: 1;
     background: transparent;
-    color: var(--text);
+    color: var(--fg);
     border: none;
     outline: none;
     font: inherit;
+  }
+
+  .cmdline-message {
+    color: var(--red);
+    font-size: 0.875rem;
   }
 </style>

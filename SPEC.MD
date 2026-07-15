@@ -1,36 +1,39 @@
-# SPEC — tanjal's personal site (Neovim · Rosé Pine)
+# SPEC — tanjal's personal site (Neovim · One Dark)
 
 > Living spec for AI-augmented development. The agent reads this file at the start of every session.
 > **LOCKED** sections are decided — do not relitigate. **OPEN** items need owner input (§14).
 > Companion files: `CLAUDE.md` (points here), `NOTES.md` (agent scratchpad + current milestone).
 
+> **v2 revision (Jul 2026)** — supersedes v1; migrate existing code, don't treat the diff as drift:
+> theme Rosé Pine → **One Dark**; font Iosevka → **JetBrains Mono**; new **window-frame layout** (§6.0);
+> IA is now `index / now / library / research` — resume.pdf and about.md are **removed**, the neofetch
+> hero is **retired** (index = photo + about prose). Known v1 build bugs to fix during migration:
+> tree glyphs need a space before filenames; stray unspecced icons in the statusline must go;
+> gutter numbers should cover every block-level element so they don't float in isolation.
+
 ## 1. Concept — LOCKED
 
-The site **is a Neovim session**. Not "terminal-inspired" — a faithful recreation of the chrome: a file-explorer sidebar (the site is a project tree; every page is a file in it), a bufferline across the top showing the buffers you've opened, a content area with a line-number gutter, a lualine-style statusline, and a command-line row. The single signature: **the chrome is functional**. The site answers to vim keys, `:` opens a working command-line, and a Telescope-style fuzzy finder navigates everything.
+The site **is a Neovim session**. Not "terminal-inspired" — a faithful recreation of the chrome: a file-explorer sidebar (the site is a project tree; every page is a file in it), a bufferline showing the buffers you've opened, a content area with a line-number gutter, a lualine-style statusline, and a command-line row. The single signature: **the chrome is functional** — vim keys, a working `:` command-line, a Telescope-style finder.
 
-Spend all boldness there. Everything else is disciplined: real content in semantic HTML, no gimmicks, fast.
+Spend all boldness there. Everything else is disciplined: real content in semantic HTML, dense and bounded (see §6.0), no gimmicks, fast.
 
-**Content convention — LOCKED:** the buffers hold what good engineers' personal sites conventionally hold — intro, about, now, reading, resume, contact — nothing invented for the theme's sake. The Neovim chrome is a presentation layer over a conventional site; if a well-regarded engineer's personal site wouldn't have a section, this site doesn't either.
-
-**Audience & the 30-second job:** engineers and recruiters (infra/data-systems companies) — but the site is built to feel like its owner, not to argue a case. In 30 seconds: who he is, what he's building and reading right now, and where the deep artifacts live (resume, Hedwig landing page + paper) one click away. The craft of the site is the credential; the content is a living snapshot, not a portfolio.
+**Audience & the 30-second job:** engineers and recruiters — but the site is built to feel like its owner, not to argue a case. In 30 seconds: who he is (photo + about, right on index), what he's building and reading now, and the research links one click away. The craft of the site is the credential; the content is a living snapshot, not a portfolio.
 
 **Forbidden (anti-cringe guardrails):** CRT scanlines/noise, typing animations on real content, fake boot sequences, blinking-cursor spam, autoplaying anything, "I use arch btw" copy, shipping a Nerd Font webfont, ASCII walls as body text. Humor budget: the chrome itself + exactly two easter eggs (`:q`, `:set ascii`). All prose is earnest and professional.
 
 ## 2. Tech stack — LOCKED
 
-Identical workflow to the previous portfolio project (deliberate — it transfers):
-
-| Concern       | Choice                                                                         | Note                                                                                       |
-| ------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| Framework     | **Astro** (current major), `output: 'static'`                                  | `site` in `astro.config.mjs` set to the real domain in **M0** — not a placeholder          |
-| Styling       | **Tailwind v4** via `pnpm astro add tailwind`                                  | All colors from CSS variables (§5); no raw hex in components                               |
-| Content       | Markdown/MDX pages only                                                        | Small site; nothing to model                                                               |
-| Interactivity | **One island**: the keyboard/command layer (§7). Vanilla inside it; no UI libs | Fuzzy match over ~25 items needs no dependency                                             |
-| Font          | **Iosevka** via Fontsource, latin subset, weights 400/700, woff2 only          | Fallback: `ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`. Budget ≤ 120KB total |
-| Icons/glyphs  | Plain unicode (`●`, `│`, `↗`, `~`) or inline SVG                               | **Never** a Nerd Font — private-use glyphs break on fallback and cost megabytes            |
-| Images        | `astro:assets`                                                                 | Headshot: webp/avif, explicit dimensions                                                   |
-| Hosting       | Vercel or Cloudflare Pages, deploy from `main`                                 | —                                                                                          |
-| Tooling       | pnpm, Node LTS, Prettier, `astro check` gates every task                       | —                                                                                          |
+| Concern       | Choice                                                                      | Note                                                                                |
+| ------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Framework     | **Astro** (current major), `output: 'static'`                               | `site` in `astro.config.mjs` is the real domain — never a placeholder               |
+| Styling       | **Tailwind v4** via `pnpm astro add tailwind`                               | All colors from CSS variables (§5); no raw hex in components                        |
+| Content       | Markdown/MDX pages only                                                     | Small site; nothing to model                                                        |
+| Interactivity | **One island**: the keyboard/command layer (§7). Vanilla inside; no UI libs | —                                                                                   |
+| Font          | **JetBrains Mono** via Fontsource, latin subset, 400/700 woff2              | Fallback: `ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`. ≤ 120KB total |
+| Icons/glyphs  | Plain unicode (`●`, `│`, `├──`, `↗`, `~`) or inline SVG                     | **Never** a Nerd Font                                                               |
+| Images        | `astro:assets`                                                              | Headshot: webp/avif, explicit dimensions                                            |
+| Hosting       | Vercel or Cloudflare Pages, deploy from `main`                              | —                                                                                   |
+| Tooling       | pnpm, Node LTS, Prettier, `astro check` gates every task                    | —                                                                                   |
 
 ## 3. Information architecture — LOCKED
 
@@ -41,234 +44,198 @@ The site is a project tree (nvim-tree style, always expanded — no fold widgets
 ├── index.md
 ├── now.md
 ├── library.md
-├── about.md
-├── resume.pdf ↗
-└── research/
-    ├── hedwig ↗          (symlink → landing page)
-    └── paper.pdf ↗       (symlink → the paper)
+└── research.md
 ```
 
-- `/` — **index**: neofetch hero (§8.1) + "recent files" quick-jump list
+- `/` — **index**: photo + about (§8.1); the whole "who is this" answer on one screen
 - `/now` — building/learning/reading right now; the beating heart (§8.2)
 - `/library` — the reading log: current, queue, finished (§8.3)
-- `/about` — longer bio + the brief research mention (§8.4)
-- `resume.pdf` — static PDF in `/public`, opens in new tab (`rel="noopener"`)
+- `/research` — short blurb + Hedwig landing page and paper links (§8.4)
 - `/404` — `E212: file not found` styled page
-- Contact is not a page: email/GitHub/LinkedIn live in the statusline (§6.4)
-- Deferred: `writing.md` — the genre's core buffer long-term; add it when the first post exists. Never ship an empty blog.
+- No resume on the site. Contact is not a page: email/GitHub/LinkedIn live in the statusline (§6.4)
 
 ## 4. Repo layout
 
 ```
 src/
-  components/          # Explorer.astro, Bufferline.astro, Statusline.astro, Neofetch.astro
+  components/          # Explorer.astro, Bufferline.astro, Statusline.astro
   components/islands/  # cmdline.ts entry — the one island
-  layouts/Buffer.astro # the "editor" frame every page renders inside
+  layouts/Buffer.astro # the editor frame every page renders inside
   pages/
-  styles/global.css    # Rosé Pine tokens (§5), type scale
+  styles/global.css    # One Dark tokens (§5), type scale
 site.config.ts         # name, tagline, links, email, domain
-public/resume.pdf
 SPEC.md · NOTES.md · CLAUDE.md
 ```
 
-## 5. Design tokens — LOCKED (values verified against the official palette)
+## 5. Design tokens — LOCKED (values from navarasu/onedark.nvim, `dark` style)
 
-### 5.1 Rosé Pine main (dark, default)
+### 5.1 One Dark (default)
 
 ```css
-:root[data-theme='main'] {
-  --base: #191724;
-  --surface: #1f1d2e;
-  --overlay: #26233a;
-  --muted: #6e6a86;
-  --subtle: #908caa;
-  --text: #e0def4;
-  --love: #eb6f92;
-  --gold: #f6c177;
-  --rose: #ebbcba;
-  --pine: #31748f;
-  --foam: #9ccfd8;
-  --iris: #c4a7e7;
-  --hl-low: #21202e;
-  --hl-med: #403d52;
-  --hl-high: #524f67;
+:root[data-theme='dark'] {
+  --bg0: #282c34; /* buffer background */
+  --bg1: #31353f; /* cursorline, hover rows */
+  --bg2: #393f4a; /* raised panels, tab hover */
+  --bg3: #3b3f4c; /* selection, borders, winseparator */
+  --bg-d: #21252b; /* chrome: explorer, statusline, desktop */
+  --fg: #abb2bf; /* body text */
+  --grey: #5c6370; /* comments, gutter — DECORATIVE ONLY (fails AA on bg0) */
+  --light-grey: #848b98; /* secondary text, inactive entries */
+  --red: #e86671;
+  --green: #98c379;
+  --yellow: #e5c07b;
+  --orange: #d19a66;
+  --blue: #61afef;
+  --purple: #c678dd;
+  --cyan: #56b6c2;
 }
 ```
 
-### 5.2 Rosé Pine Dawn (light)
+### 5.2 Light theme
 
-```css
-:root[data-theme='dawn'] {
-  --base: #faf4ed;
-  --surface: #fffaf3;
-  --overlay: #f2e9e1;
-  --muted: #9893a5;
-  --subtle: #797593;
-  --text: #575279;
-  --love: #b4637a;
-  --gold: #ea9d34;
-  --rose: #d7827e;
-  --pine: #286983;
-  --foam: #56949f;
-  --iris: #907aa9;
-  --hl-low: #f4ede8;
-  --hl-med: #dfdad9;
-  --hl-high: #cecacd;
-}
-```
+One Light, sourced by the agent from the same repo's `palette.lua` (`light` style) at implementation time — do not invent values. Same variable names.
 
-### 5.3 Semantic mapping — what makes it _Rosé Pine_ and not "purple dark mode"
+### 5.3 Semantic mapping — deploy the palette like a highlighted buffer, not a wireframe
 
-Follow the palette's official roles and the rose-pine/neovim highlight groups:
+The v1 build failed by rendering nearly everything in greys. Rule: **every screen must visibly use at least three accents**, assigned as One Dark uses them:
 
-- `base` page bg · `surface` bufferline/statusline/panel bg · `overlay` floating windows (Telescope modal)
-- `text` body · `subtle` secondary text, inactive buffer tabs · `muted` **decorative only** (line numbers, comments — fails AA contrast on `base`; never meaningful small text)
-- `iris` links + h1 · `foam` h2, info accents · `rose` h3, inline-code accent · `gold` highlights/strings/warnings · `pine` statusline mode block **background** with `base` text (pine fails AA as small text on base) · `love` errors, destructive, easter eggs only
-- `hl-low` cursorline/hover rows · `hl-med` `::selection` background paired with `text` foreground · `hl-high` borders, block cursor
+- `bg0` buffer · `bg-d` chrome panes + desktop behind the window · `bg1` cursorline/hover · `bg3` `::selection` (with `fg`), borders, winseparators
+- `fg` body · `light-grey` secondary/inactive · `grey` strictly decorative (gutter numbers, `#` heading prefixes, comment-style asides)
+- `blue` — all links (underlined) and "function"-flavored accents
+- `red` — headings (bold), per One Dark's markdown convention; also errors/easter eggs
+- `green` — the statusline NORMAL block (lualine onedark convention), string-flavored accents (the tagline in quotes), git-add-flavored positives
+- `purple` — VISUAL mode block, keyword-flavored labels (e.g., `last edited:`, list-group titles)
+- `yellow` — COMMAND mode block, highlights, in-progress markers
+- `orange` — numbers, dates, progress figures
+- `cyan` — tags, metadata, tree folder accents
 
-Type: everything monospace (Iosevka). Content column `max-width: 80ch` — the buffer is 80 columns. Body 15–16px, line-height ≥ 1.7 (mono needs air). Headings differ by color + weight, not exotic sizing: h1 iris bold prefixed `# `, h2 foam prefixed `## `, h3 rose — markdown rendered as markdown-in-a-buffer. Prefixes are CSS `::before` content, decorative, excluded from copy.
+Statusline mode blocks: match lualine's `onedark` theme — `NORMAL` green, `VISUAL` purple, `COMMAND` yellow, each with `bg0` text (agent verifies against the lualine theme source).
+
+Type: everything JetBrains Mono. Content column `max-width: 80ch`; body 15–16px, line-height ≥ 1.7. Headings differ by color + weight, not exotic sizes: h1/h2 red bold prefixed `# `/`## ` (prefixes in `grey`, decorative `::before`, excluded from copy), h3 orange.
 
 ## 6. The chrome — LOCKED
 
-### 6.1 File explorer (left, primary nav)
+### 6.0 The window frame — the v2 layout fix
 
-`<nav aria-label="explorer">`, nvim-tree-style, rendering the §3 tree. Always expanded — no fold interactivity. Box-drawing characters (`├──`, `└──`, `│`) are decorative `::before` content, `aria-hidden`, unselectable — link text stays clean for screen readers and copy. Current file: `text` on an `hl-low` cursorline row; other entries `subtle`; external symlinks carry `↗`. Desktop ≥1024px: fixed left column (~240px), `surface` bg. Below that: hidden by default, opens as an overlay drawer from the statusline's `≡ files` button (and `Space e`); the drawer must work without the island (`<details>`-based is acceptable if it's keyboard- and screen-reader-clean). Plain anchor links throughout — full navigation works with JS disabled.
+The editor is a **bounded window on a desktop**, not a full-bleed page. Page background: `bg-d` (or 6% darker). The editor window: centered, `max-width: 1080px`, `min-height: 88vh`, `bg0`, 1px `bg3` border, 4px radius, subtle shadow. All chrome (bufferline, explorer, buffer, statusline, cmdline) lives inside it. Density rules: content starts ≤ 2 line-heights under the bufferline; no region of the window may be more than ~35% empty at desktop width with real content; explorer entries at comfortable but tight line-height (~1.9). Below ~768px the window goes edge-to-edge (no desktop margin).
+
+### 6.1 File explorer (left pane, primary nav)
+
+`<nav aria-label="explorer">`, nvim-tree-style, rendering the §3 tree, always expanded. Box-drawing glyphs (`├──`, `└──`, `│`) are decorative `::before` content, `aria-hidden`, unselectable, **with a space before filenames**. Pane: `bg-d`, ~220px, 1px `bg3` winseparator on its right. Current file: `fg` on `bg1` cursorline row; others `light-grey`; hover `bg1`. Root `~/tanjal` in `cyan`. Below desktop: hidden by default, opens as an overlay drawer from the statusline's `≡ files` button (and `Space e`); drawer must work without the island (`<details>`-based acceptable if keyboard- and screen-reader-clean). Plain anchor links — full navigation works with JS disabled.
 
 ### 6.2 Bufferline (top, secondary nav, labelled)
 
-Shows **buffers opened this session**, like a real bufferline. Static default: the current file only. The island (§7) appends files as you visit them (sessionStorage) and renders them as tabs: active `text` on `base` with a `rose` `●`; inactive `subtle` on `surface`. `]b` / `[b` cycle open buffers. Horizontal scroll, no wrapping. This keeps the chrome honest — the explorer shows the project, the bufferline shows your session.
+Shows **buffers opened this session**, like a real bufferline. Static default: current file only. The island (§7) appends visited files (sessionStorage): active tab `fg` on `bg0` with a `green` `●`; inactive `light-grey` on `bg-d`. `]b`/`[b` cycle open buffers. Horizontal scroll, no wrap.
 
 ### 6.3 Buffer area
 
-`Buffer.astro` wraps every page: line-number gutter on the left (CSS counters over block-level children), content right. Gutter numbers are `muted`, `aria-hidden="true"`, `user-select: none` — they must never appear in copy-paste or screen-reader output. Gutter hides below ~480px. **Semantics test:** with all CSS removed, every page must read as a plain, sensible document — the chrome is decoration around real HTML, never the substance.
+`Buffer.astro`: line-number gutter left (CSS counters), content right, sits beside the explorer. Gutter numbers `grey`, `aria-hidden`, `user-select: none`, and cover **every block-level element** (paragraphs, headings, list items) so numbering reads continuous rather than floating. Gutter hides below ~480px. **Semantics test:** with CSS removed, every page reads as a plain, sensible document.
 
-### 6.4 Statusline (bottom, `<footer>`, sticky)
+### 6.4 Statusline (bottom of window, `<footer>`, sticky within it)
 
-Lualine layout, left → right:
-`[ NORMAL ]` mode block (pine bg, base text) · ` main` branch segment (decorative) · `~/tanjal/<buffer>.md` · _(spacer)_ · contact links `gh` `in` `@` · theme toggle (`☀/☾`, equivalent to `:set bg=`) · scroll `%` and `Ln:Col` (decorative; updates via the island, static `Top 0:0` without it).
+Lualine layout, left → right: mode block (§5.3 colors) · ` main` (decorative) · `~/tanjal/<file>` · _(spacer)_ · contact links `gh` `in` `@` · theme toggle (`☀/☾`, equivalent to `:set bg=`) · `≡ files` (below desktop) · scroll `%` + `Ln:Col` (island-updated; static `Top 0:0` without it). Nothing else — remove any unspecced icons. Mode is honest: `NORMAL` default, `VISUAL` on text selection, `COMMAND` while the command-line has focus.
 
-Mode block is honest: `NORMAL` default → `VISUAL` while text is selected (`selectionchange`) → `COMMAND` while the command-line is focused. This is the micro-delight; no other animation needed.
+### 6.5 Command-line row
 
-### 6.4 Command-line row
-
-A `:`-prompt row below the statusline (or overlaid on focus). Click/tap the `:` or press `:` to focus — must be a real `<input>` so mobile keyboards work.
+A `:`-prompt row at the window's bottom edge. Click/tap `:` or press `:` to focus — a real `<input>` so mobile keyboards work.
 
 ## 7. Keyboard & command layer — the one island — LOCKED behavior
 
-Progressive enhancement: every destination is reachable by plain links; this layer is convenience. JS budget for the whole island: **< 15KB gzipped**.
+Progressive enhancement; every destination reachable by plain links. Island budget: **< 15KB gzipped**.
 
-Keys (active only when focus is NOT in an input/textarea; never bind Ctrl/Cmd combos; never `preventDefault` browser-reserved shortcuts):
+Keys (inactive when focus is in an input; never bind Ctrl/Cmd combos):
 
-- `j` / `k` scroll · `gg` / `G` top/bottom (instant when `prefers-reduced-motion`)
-- `]b` / `[b` next/prev buffer
-- `:` command-line · `/` or `Space f f` fuzzy finder · `?` help overlay · `Esc` closes any overlay and restores focus to its trigger
+- `j`/`k` scroll · `gg`/`G` top/bottom (instant under `prefers-reduced-motion`)
+- `]b`/`[b` cycle open buffers (falls back to all files when only one is open)
+- `Space e` toggle the explorer (drawer below desktop)
+- `:` command-line · `/` or `Space f f` fuzzy finder · `?` help overlay · `Esc` closes any overlay, restores focus
 
-Command-line grammar:
+Command grammar:
 
-- `:e <buffer>` navigate (Tab-completes buffer names) · `:e!` hard reload
-- `:help` opens the help overlay (keymap listing)
-- `:set bg=light` / `bg=dark` theme (persisted; same no-flash inline-script pattern as the previous project)
-- `:set ascii` / `:set noascii` toggles neofetch photo ↔ ASCII art (§8.1), persisted
-- `:q` easter egg — statusline flashes `E37: No write since last change` in love; nothing closes. `:q!` → brief "goodbye." toast, scrolls to top. Nothing more.
-- Unknown command → `E492: Not an editor command: <input>` in love. All error strings are authentic Vim errors.
+- `:e <file>` navigate (Tab-completes) · `:e!` hard reload
+- `:help` keymap overlay
+- `:set bg=light|dark` theme (persisted, no-flash inline script)
+- `:set ascii` / `:set noascii` — index photo ↔ pre-generated ASCII art, persisted
+- `:q` → statusline flashes `E37: No write since last change` in red; `:q!` → brief "goodbye." toast, scroll to top
+- Unknown → `E492: Not an editor command: <input>` in red. All error strings are authentic Vim errors.
 
-Fuzzy finder (Telescope-style): `overlay` bg modal, `> ` prompt, subsequence match with matched characters in gold, entries = buffers + top-level sections + external links (GitHub, LinkedIn, resume, Hedwig landing page, paper). Navigation: arrow keys + Enter (no Ctrl bindings). Focus trapped while open, returned on close; `role="dialog"`, `aria-modal`, labelled.
+Fuzzy finder (Telescope-style): `bg-d` modal over the window, `> ` prompt, subsequence match with matched chars in `yellow`; entries = files + top-level sections + external links (GitHub, LinkedIn, Hedwig landing page, paper). Arrows + Enter. Focus trapped while open, returned on close; labelled `role="dialog"` + `aria-modal`.
 
-## 8. Content — real copy drafted below; owner verifies every fact before ship
+## 8. Content — drafted; owner verifies every fact before ship
 
-### 8.1 index — neofetch hero
+### 8.1 index.md — photo + about, the whole answer on one screen
 
-Layout (stacks on mobile: photo above, info below):
+mitchellh.com is the register: short, dense, first-person paragraphs with inline links; no section scaffolding.
 
-```
-┌──────────────┐   tanjal@seattle
-│              │   ─────────────────
-│   [photo]    │   role      SDE @ Amazon
-│              │   edu       BS Computer Science, University of Washington '26
-└──────────────┘   focus     distributed systems · database internals · AI infra
-                   learning  rust & go — systems project arc
-                   research  Hedwig — adaptive governance for LLM coding agents ↗
-                   reading   Designing Data-Intensive Applications
-                   links     github · linkedin · resume ↗
-                   ● ● ● ● ● ●   ← neofetch color strip: love gold rose pine foam iris
-```
-
-- Photo: **real and recognizable** — squarish crop, sharp corners, 1px `hl-high` border, framed as if rendered by a terminal image protocol. No heavy filter; at most slight desaturation to sit in the palette (owner decides after seeing both).
-- `:set ascii` swaps in a pre-generated ASCII rendering (generated once from the photo via a script, committed as text; regenerate manually if the photo changes).
-- Below the fold: "recent files" — 3 quick-jump rows (now.md · library.md · resume.pdf) styled as an oldfiles list.
-- The `research` row links out to the Hedwig landing page — this line plus one about.md paragraph is the site's entire research presence.
-- **Done when:** hero renders with zero island JS (the toggle enhances it); photo has explicit dimensions (CLS 0); color strip uses the six accent variables; keys `role/edu/…` are real `<dl>` markup.
+- Top: photo (real, recognizable; squarish, sharp corners, 1px `bg3` border — rendered like a terminal image protocol) beside name (h1, red) and a one-line tagline in `green` string-quotes styling. Stacks on mobile.
+- Then 3–4 short paragraphs: what he does now (SDE @ Amazon — one sentence), what he's into (distributed systems, database internals, AI infra) and what he's building toward, one line on the UW → research → industry arc with "research" linked inline to `/research`, and optionally one line of non-work texture (OPEN §14).
+- Footer flourish: the six-accent color strip `● ● ● ● ● ●` (red green yellow blue purple cyan) — the one decoration.
+- **Done when:** a stranger knows who he is without scrolling on desktop; photo has explicit dimensions (CLS 0); ≥3 accents visibly used; `:set ascii` still swaps the photo.
 
 ### 8.2 now.md — the beating heart
 
-/now-page tradition: casual, dated (`last edited: <date>` in `muted` at top), present tense. Sections:
+/now-page tradition: casual, dated (`last edited: <date>` — label `purple`, date `orange`). Sections: **Building** (the current Rust/Go systems project — OPEN §14 — one honest paragraph), **Learning** (what the arc is teaching; day job ≤ one sentence), **Reading** (DDIA, ~⅓ through, linking library.md).
 
-1. **Building** — the current Rust/Go systems project within the six-project arc (OPEN §14: name it); one honest paragraph on where it stands.
-2. **Learning** — what the arc is teaching right now; the day job appears here as at most one sentence.
-3. **Reading** — currently DDIA (~⅓ through), linking to library.md for the full log.
+- **Done when:** one screen tells a stranger what he's building and reading _this month_; nothing reads like a resume.
 
-- **Done when:** a stranger can tell within one screen what he's building and reading _this month_; nothing on the page reads like a resume.
+### 8.3 library.md — kept as-is from v1 (owner likes it)
 
-### 8.3 library.md
+Three plain groups: **reading now** (DDIA + rough progress in `orange`), **queue** (Effective Java → A Philosophy of Software Design → Database Internals → Java Concurrency in Practice — owner confirms order), **finished** (title · year · optional one-line note in `grey` comment styling). No ratings, no covers, no affiliate links.
 
-The reading log — the page that grows. Three plain groups: **reading now** (DDIA, with rough progress), **queue** (Effective Java → A Philosophy of Software Design → Database Internals → Java Concurrency in Practice — owner confirms order), **finished** (title · year finished · optional one-line note in `muted`). No ratings, no cover images, no affiliate links.
+- **Done when:** adding a book is a one-line diff.
 
-- **Done when:** adding a book is a one-line diff to a markdown list.
+### 8.4 research.md — short by design
 
-### 8.4 about.md
+One short blurb (2–3 sentences, owner verifies wording): at UW he researched AI–human coding collaboration and built **Hedwig**, an adaptive governance layer for LLM coding agents; the award earns at most a clause. Then two prominent links: **Hedwig landing page ↗** and **paper ↗** (`blue`, underlined). Nothing else — deep detail lives at the canonical links.
 
-3–4 first-person paragraphs: the arc (UW → research → Amazon — the day job in one sentence, not a resume recap), what pulls him toward storage and data systems, where he's headed. One short **research** paragraph: at UW he researched AI–human coding collaboration and built Hedwig, an adaptive governance layer for LLM coding agents — link the landing page and the paper; the award earns at most a clause (owner verifies wording). Deep detail lives at those canonical links, never re-argued here. Optional closing paragraph of non-work texture (owner decides what's public — OPEN §14). Ends with a contact line mirroring the statusline.
+- **Done when:** the page fits in one screen and both links work.
 
-## 9. Accessibility — LOCKED (this genre's failure mode; non-negotiable)
+## 9. Accessibility — LOCKED
 
-- Semantic HTML underneath everything (§6.2 semantics test). Landmarks: `nav` bufferline, `main` buffer, `footer` statusline.
-- Gutter numbers and decorative statusline segments: `aria-hidden`, unselectable.
-- Keyboard layer: no focus traps outside modals; `Esc` always works; inputs opt out of global keys; overlays are labelled dialogs with managed focus.
-- Contrast: body text AA in **both** themes; `muted` and `pine` restricted per §5.3; verify Dawn separately — light themes fail more often.
-- Focus visible: 2px `foam` outline, 2px offset, everywhere.
+- Semantic HTML underneath everything (§6.3 semantics test). Landmarks: labelled `nav` explorer (primary) and `nav` bufferline (secondary), `main` buffer, `footer` statusline.
+- Gutter numbers, tree glyphs, decorative statusline segments: `aria-hidden`, unselectable.
+- Keyboard layer: no focus traps outside modals; `Esc` always works; overlays are labelled dialogs with managed focus.
+- Contrast: body AA in both themes; `grey` strictly decorative; verify accent-on-`bg0` combinations, and One Light separately — light themes fail more often.
+- Focus visible: 2px `blue` outline, 2px offset, everywhere.
 - `prefers-reduced-motion`: instant scrolls, no transitions.
-- Touch: every key-driven action has a visible tap path (bufferline links, `:` button, finder button in the statusline).
+- Touch: every key-driven action has a visible tap path (explorer links, `≡ files`, `:` button, finder button).
 
 ## 10. Performance & SEO budgets — LOCKED
 
-- Lighthouse ≥ 95 all categories, mobile emulation, on `/` and `/now`.
+- Lighthouse ≥ 95 all categories, mobile emulation, `/` and `/now`.
 - Total JS < 25KB gz (island < 15KB); fonts ≤ 120KB; LCP < 1.5s; CLS < 0.05.
-- `site` set in M0; unique title/description per buffer; OG image = a designed static "screenshot" of the terminal frame (1200×630, made in M6); sitemap + robots; JSON-LD `Person` on `/`.
-- No eager work: beyond `keydown` and `selectionchange` listeners, the island does nothing until interaction.
+- Unique title/description per page; OG image = designed static "screenshot" of the window (1200×630, M6); sitemap + robots; JSON-LD `Person` on `/`.
 
 ## 11. Milestones — one agent session each; DoD gates the next
 
-- **M0 — Scaffold.** Astro + Tailwind + Iosevka + Prettier; `site.config.ts`; **real domain in `astro.config.mjs`**; deploy hello. _DoD: live URL; `astro check` + `build` green._
-- **M1 — Chrome, static.** Tokens (§5), `Buffer.astro` + gutter, bufferline, statusline (static), both themes with no-flash toggle, 404. _DoD: §6.2 semantics test passes; AA contrast both themes; full nav works keyboard-only via links._
-- **M2 — Content.** All four buffers with drafted copy, resume.pdf wired. _DoD: site is shippable with zero island JS; owner receives a checklist of every factual claim to verify._
-- **M3 — Island.** Keys, command-line + errors, finder, help overlay, mode indicator, `Ln:Col`. _DoD: §7 grammar complete; JS budget verified from build output; §9 re-verified with overlays present._
-- **M4 — Neofetch polish.** ASCII toggle, color strip, photo treatment decision. _DoD: `:set ascii` persists across pages; CLS 0._
-- **M5 — Polish.** Hover/cursorline states, Dawn QA pass, edge states, copy pass.
-- **M6 — Ship.** OG image, JSON-LD, Lighthouse runs recorded in NOTES.md, custom domain + HTTPS.
+- **M1v2 — Migration.** Apply §5 tokens + JetBrains Mono, build the §6.0 window frame, fix v1 bugs (revision note), restyle explorer/bufferline/statusline per §6. _DoD: both themes AA; §6.3 semantics test; every screen shows ≥3 accents; v1 bug list closed._
+- **M2 — Content.** Four pages per §8, old about/resume/neofetch code deleted. _DoD: shippable with zero island JS; owner gets a checklist of every factual claim._
+- **M3 — Island.** Keys, command-line + errors, finder, help overlay, mode indicator, session bufferline, `Ln:Col`. _DoD: §7 complete; JS budget verified; §9 re-verified with overlays._
+- **M4 — Photo polish.** ASCII toggle, photo treatment decision, color strip.
+- **M5 — Polish.** Hover/cursorline states, One Light QA, edge states, copy pass.
+- **M6 — Ship.** OG image, JSON-LD, Lighthouse runs in NOTES.md, custom domain + HTTPS.
 
 ## 12. Agent working agreement — LOCKED
 
-Identical to the previous project, plus two additions:
-
 1. Read SPEC.md + NOTES.md first; one milestone per session; DoD gates progression; `pnpm astro check && pnpm build` green ends every task; vanilla before dependencies; no new deps/routes/tokens without asking; small conventional commits.
-2. **Facts are sacred:** never invent, round, or embellish any claim about the owner, Hedwig, employers, or metrics. Missing fact → insert `TODO(owner): …` and continue.
-3. **Authenticity over invention:** when unsure how a Vim/Neovim element behaves or is spelled (error codes, statusline order, command names), match real Neovim rather than improvising.
+2. **Facts are sacred:** never invent, round, or embellish any claim about the owner, Hedwig, employers, or metrics. Missing fact → `TODO(owner): …` and continue.
+3. **Authenticity over invention:** when unsure how a Vim/Neovim/One Dark element behaves or is spelled, match the real thing (onedark.nvim, lualine, Vim error codes) rather than improvising.
 
 ## 13. Risks
 
-- **Gimmick decay:** the chrome must never slow a recruiter down — content fully readable with the island ignored. M2's shippable-without-JS gate enforces this.
-- **Mobile:** vim keys are moot on touch; the site must feel complete there (§9 tap paths).
-- **Employer/IP:** Hedwig links published only at owner-approved level; the day job stays a one-line mention with no internal specifics.
+- **Gimmick decay:** content fully readable with the island ignored; M2's zero-JS gate enforces it.
+- **Washed-out regression:** the ≥3-accents rule (§5.3) and M1v2 DoD exist because v1 failed here.
+- **Employer/IP:** Hedwig links at owner-approved level; day job stays one sentence, no internal specifics.
 
 ## 14. OPEN — owner inputs
 
-| #   | Item                                                          | Needed by |
-| --- | ------------------------------------------------------------- | --------- |
-| 1   | Domain (buy early) + final name/tagline wording               | M0        |
-| 2   | Headshot (high-res) + plain vs. slightly desaturated          | M2/M4     |
-| 3   | Resume PDF (final)                                            | M2        |
-| 4   | Hedwig landing page URL + paper URL                           | M2        |
-| 5   | Name of the current Rust/Go project for now.md ("building X") | M2        |
-| 6   | GitHub/LinkedIn URLs; email to display                        | M1        |
-| 7   | about.md: include personal interests? Which?                  | M2        |
-| 8   | Default theme: main (dark) confirmed? Dawn only via toggle?   | M1        |
+| #   | Item                                                     | Needed by |
+| --- | -------------------------------------------------------- | --------- |
+| 1   | Domain (buy early) + final name/tagline wording          | M1v2      |
+| 2   | Headshot (high-res) — replaces the `photo pending` box   | M2        |
+| 3   | Hedwig landing page URL + paper URL                      | M2        |
+| 4   | Name of the current Rust/Go project ("building X")       | M2        |
+| 5   | GitHub/LinkedIn URLs; email to display                   | M2        |
+| 6   | index.md bio: owner voice pass on the drafted paragraphs | M2        |
+| 7   | Personal-texture line on index: include? What?           | M2        |
+| 8   | Dark default confirmed; One Light only via toggle?       | M1v2      |

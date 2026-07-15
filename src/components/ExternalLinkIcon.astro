@@ -1,0 +1,29 @@
+---
+// Small external-link arrow (↗), used wherever a link leaves the site.
+// JetBrains Mono doesn't include U+2197 in its cmap — inline SVG per
+// SPEC.md §2 instead of a unicode char that would fall back to a system font.
+---
+
+<svg
+  class="external-link-icon"
+  viewBox="0 0 16 16"
+  width="0.75em"
+  height="0.75em"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  <line x1="4" y1="12" x2="12" y2="4"></line>
+  <polyline points="5,4 12,4 12,11"></polyline>
+</svg>
+
+<style>
+  .external-link-icon {
+    display: inline;
+    vertical-align: baseline;
+    margin-left: 0.15em;
+  }
+</style>

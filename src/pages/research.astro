@@ -1,0 +1,63 @@
+---
+// research.md (SPEC.md §8.4): short by design — one blurb, two links, done.
+import Buffer from '../layouts/Buffer.astro';
+import ExternalLinkIcon from '../components/ExternalLinkIcon.astro';
+import { siteConfig } from '../../site.config';
+---
+
+<Buffer
+  title={`research.md — ${siteConfig.name}`}
+  description="Hedwig — an adaptive governance layer for LLM coding agents."
+  currentPath="/research"
+>
+  <div class="line">
+    <h1>research.md</h1>
+  </div>
+  <div class="line">
+    <p>
+      At UW I researched AI–human coding collaboration and built <strong>Hedwig</strong>, an
+      adaptive governance layer for LLM coding agents — learning when an agent should act
+      autonomously versus defer to the developer. TODO(owner): the award, in one clause, with exact
+      wording (SPEC.md §14 item 3).
+    </p>
+  </div>
+  <div class="line">
+    <p class="research-links">
+      {
+        siteConfig.links.hedwig ? (
+          <a href={siteConfig.links.hedwig} target="_blank" rel="noopener">
+            Hedwig landing page
+            <ExternalLinkIcon />
+          </a>
+        ) : (
+          <span class="pending-note">Hedwig landing page (link pending)</span>
+        )
+      }
+      <br />
+      {
+        siteConfig.links.paper ? (
+          <a href={siteConfig.links.paper} target="_blank" rel="noopener">
+            paper
+            <ExternalLinkIcon />
+          </a>
+        ) : (
+          <span class="pending-note">paper (link pending)</span>
+        )
+      }
+    </p>
+  </div>
+</Buffer>
+
+<style>
+  .research-links a {
+    color: var(--blue);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 700;
+  }
+
+  .pending-note {
+    color: var(--grey);
+    font-size: 0.8125rem;
+  }
+</style>

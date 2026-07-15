@@ -1,0 +1,105 @@
+---
+// Telescope-style fuzzy finder (SPEC.md §7). Static, hidden shell — all
+// behavior (open/close, filtering, navigation) is wired by the island (M3).
+// Uses the combobox/listbox pattern so focus never has to leave the input:
+// arrow keys move `aria-activedescendant`, no real focus trap loop needed.
+---
+
+<div
+  class="finder-overlay"
+  id="finder-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Fuzzy finder"
+  hidden
+>
+  <div class="finder-panel">
+    <div class="finder-prompt-row">
+      <span class="finder-prompt" aria-hidden="true">&gt;</span>
+      <input
+        type="text"
+        id="finder-input"
+        class="finder-input"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="finder-list"
+        aria-autocomplete="list"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        placeholder="Search buffers, sections, links…"
+      />
+    </div>
+    <ul class="finder-list" id="finder-list" role="listbox"></ul>
+  </div>
+</div>
+
+<style>
+  .finder-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 12vh;
+    background: color-mix(in srgb, var(--bg-d) 60%, transparent);
+  }
+
+  .finder-panel {
+    width: min(32rem, 90vw);
+    background: var(--bg-d);
+    border: 1px solid var(--bg3);
+    max-height: 60vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .finder-prompt-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--bg3);
+  }
+
+  .finder-prompt {
+    color: var(--yellow);
+    font-weight: 700;
+  }
+
+  .finder-input {
+    flex: 1;
+    background: transparent;
+    color: var(--fg);
+    border: none;
+    outline: none;
+    font: inherit;
+  }
+
+  .finder-list {
+    list-style: none;
+    overflow-y: auto;
+  }
+
+  .finder-item {
+    padding: 0.5rem 0.75rem;
+    color: var(--light-grey);
+    cursor: pointer;
+  }
+
+  .finder-item mark {
+    background: none;
+    color: var(--yellow);
+  }
+
+  .finder-item[aria-selected='true'] {
+    background: var(--bg1);
+    color: var(--fg);
+  }
+
+  .finder-empty {
+    padding: 0.75rem;
+    color: var(--grey);
+  }
+</style>

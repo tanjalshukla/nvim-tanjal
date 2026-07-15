@@ -1,44 +1,35 @@
 ---
-import type { TreeNode } from '../../site.config';
+// Flat file list (SPEC.md §3 — no nesting in v2). Connectors are ASCII
+// (`|--`/`` `-- ``, the same convention `tree --charset ascii` uses) rather
+// than Unicode box-drawing: JetBrains Mono doesn't include those glyphs, and
+// falling back to a system font for them was exactly the v1 bug this avoids.
+// Connectors are ::before content with a reserved fixed-width box so the
+// trailing space before the filename can never get crowded out regardless
+// of font metrics (the actual v1 bug, despite the content string already
+// including a trailing space).
+import { buffers } from '../../site.config';
 
 interface Props {
-  nodes: TreeNode[];
   currentPath: string;
 }
 
-const { nodes, currentPath } = Astro.props;
+const { currentPath } = Astro.props;
 ---
 
 <ul class="tree">
   {
-    nodes.map((node) =>
-      node.type === 'dir' ? (
-        <li class="tree-dir">
-          <span class="tree-label">{node.label}</span>
-          <Astro.self nodes={node.children} currentPath={currentPath} />
-        </li>
-      ) : node.path ? (
-        <li>
-          <a
-            href={node.path}
-            class="tree-entry"
-            class:list={{ 'tree-entry-current': currentPath === node.path }}
-            target={node.type === 'symlink' ? '_blank' : undefined}
-            rel={node.type === 'symlink' ? 'noopener' : undefined}
-            aria-current={currentPath === node.path ? 'page' : undefined}
-          >
-            {node.label}
-          </a>
-        </li>
-      ) : (
-        <li>
-          <span class="tree-entry tree-entry-pending" aria-disabled="true">
-            {node.label}
-            <span class="sr-only"> (link pending, owner to provide)</span>
-          </span>
-        </li>
-      )
-    )
+    buffers.map((buf) => (
+      <li>
+        <a
+          href={buf.path}
+          class="tree-entry"
+          class:list={{ 'tree-entry-current': currentPath === buf.path }}
+          aria-current={currentPath === buf.path ? 'page' : undefined}
+        >
+          {buf.label}
+        </a>
+      </li>
+    ))
   }
 </ul>
 
@@ -49,49 +40,35 @@ const { nodes, currentPath } = Astro.props;
 
   .tree > li {
     position: relative;
-    padding-left: 1.5rem;
+    padding-left: 2.5rem;
+    line-height: 1.9;
   }
 
-  /* Box-drawing connectors are decorative ::before content — never real DOM
-     text, so they can't leak into copy-paste or screen-reader output. */
   .tree > li::before {
-    content: '├── ';
+    content: '|--';
     position: absolute;
     left: 0;
-    color: var(--muted);
+    width: 2.5rem;
+    color: var(--grey);
+    white-space: pre;
   }
 
   .tree > li:last-child::before {
-    content: '└── ';
-  }
-
-  .tree-dir > .tree {
-    margin-left: 0.375rem;
-    padding-left: 0.75rem;
-    border-left: 1px solid var(--hl-high);
-  }
-
-  .tree-label {
-    color: var(--subtle);
+    content: '`--';
   }
 
   .tree-entry {
-    color: var(--subtle);
+    color: var(--light-grey);
     text-decoration: none;
   }
 
   .tree-entry:hover {
-    color: var(--text);
-    background: var(--hl-low);
+    color: var(--fg);
+    background: var(--bg1);
   }
 
   .tree-entry-current {
-    color: var(--text);
-    background: var(--hl-low);
-  }
-
-  .tree-entry-pending {
-    color: var(--muted);
-    cursor: not-allowed;
+    color: var(--fg);
+    background: var(--bg1);
   }
 </style>

@@ -1,85 +1,89 @@
 @import 'tailwindcss';
 
-/* Iosevka — subsetted to Latin + the handful of extra glyphs the site uses.
-   See scripts/build-fonts.sh for how public/fonts/*.woff2 is generated. */
+/* JetBrains Mono — subsetted to Latin + the extra glyphs used as real text.
+   See scripts/build-fonts.sh for how public/fonts/*.woff2 is generated, and
+   why decorative glyphs (tree connectors, bullets, arrows, sun/moon) are
+   CSS-drawn or inline SVG instead of relying on this font's Unicode
+   coverage, which is much narrower than a font like Iosevka. */
 @font-face {
-  font-family: 'Iosevka';
+  font-family: 'JetBrains Mono';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/iosevka-latin-400.woff2') format('woff2');
+  src: url('/fonts/jetbrains-mono-latin-400.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'Iosevka';
+  font-family: 'JetBrains Mono';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('/fonts/iosevka-latin-700.woff2') format('woff2');
+  src: url('/fonts/jetbrains-mono-latin-700.woff2') format('woff2');
 }
 
-/* Rosé Pine design tokens (SPEC.md §5). Values verified against the official palette. */
+/* One Dark / One Light design tokens (SPEC.md §5), values from
+   navarasu/onedark.nvim's palette.lua — not invented. */
 :root,
-:root[data-theme='main'] {
-  --base: #191724;
-  --surface: #1f1d2e;
-  --overlay: #26233a;
-  --muted: #6e6a86;
-  --subtle: #908caa;
-  --text: #e0def4;
-  --love: #eb6f92;
-  --gold: #f6c177;
-  --rose: #ebbcba;
-  --pine: #31748f;
-  --foam: #9ccfd8;
-  --iris: #c4a7e7;
-  --hl-low: #21202e;
-  --hl-med: #403d52;
-  --hl-high: #524f67;
+:root[data-theme='dark'] {
+  --bg0: #282c34;
+  --bg1: #31353f;
+  --bg2: #393f4a;
+  --bg3: #3b3f4c;
+  --bg-d: #21252b;
+  --fg: #abb2bf;
+  --grey: #5c6370;
+  --light-grey: #848b98;
+  --red: #e86671;
+  --green: #98c379;
+  --yellow: #e5c07b;
+  --orange: #d19a66;
+  --blue: #61afef;
+  --purple: #c678dd;
+  --cyan: #56b6c2;
 }
 
-:root[data-theme='dawn'] {
-  --base: #faf4ed;
-  --surface: #fffaf3;
-  --overlay: #f2e9e1;
-  --muted: #9893a5;
-  --subtle: #797593;
-  --text: #575279;
-  --love: #b4637a;
-  --gold: #ea9d34;
-  --rose: #d7827e;
-  --pine: #286983;
-  --foam: #56949f;
-  --iris: #907aa9;
-  --hl-low: #f4ede8;
-  --hl-med: #dfdad9;
-  --hl-high: #cecacd;
+:root[data-theme='light'] {
+  --bg0: #fafafa;
+  --bg1: #f0f0f0;
+  --bg2: #e6e6e6;
+  --bg3: #dcdcdc;
+  --bg-d: #c9c9c9;
+  --fg: #383a42;
+  --grey: #a0a1a7;
+  --light-grey: #818387;
+  --red: #e45649;
+  --green: #50a14f;
+  --yellow: #986801;
+  --orange: #c18401;
+  --blue: #4078f2;
+  --purple: #a626a4;
+  --cyan: #0184bc;
 }
 
 @theme inline {
-  --font-mono: 'Iosevka', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --color-base: var(--base);
-  --color-surface: var(--surface);
-  --color-overlay: var(--overlay);
-  --color-muted: var(--muted);
-  --color-subtle: var(--subtle);
-  --color-text: var(--text);
-  --color-love: var(--love);
-  --color-gold: var(--gold);
-  --color-rose: var(--rose);
-  --color-pine: var(--pine);
-  --color-foam: var(--foam);
-  --color-iris: var(--iris);
-  --color-hl-low: var(--hl-low);
-  --color-hl-med: var(--hl-med);
-  --color-hl-high: var(--hl-high);
+  --color-bg0: var(--bg0);
+  --color-bg1: var(--bg1);
+  --color-bg2: var(--bg2);
+  --color-bg3: var(--bg3);
+  --color-bg-d: var(--bg-d);
+  --color-fg: var(--fg);
+  --color-grey: var(--grey);
+  --color-light-grey: var(--light-grey);
+  --color-red: var(--red);
+  --color-green: var(--green);
+  --color-yellow: var(--yellow);
+  --color-orange: var(--orange);
+  --color-blue: var(--blue);
+  --color-purple: var(--purple);
+  --color-cyan: var(--cyan);
 }
 
 html {
   font-family: var(--font-mono);
-  background: var(--base);
-  color: var(--text);
+  background: var(--bg-d);
+  color: var(--fg);
 }
 
 body {
@@ -94,12 +98,12 @@ body {
 }
 
 ::selection {
-  background: var(--hl-med);
-  color: var(--text);
+  background: var(--bg3);
+  color: var(--fg);
 }
 
 :focus-visible {
-  outline: 2px solid var(--foam);
+  outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
 
@@ -129,52 +133,50 @@ body {
   line-height: 1.4;
 }
 
-.buffer-prose h1 {
-  color: var(--iris);
+.buffer-prose h1,
+.buffer-prose h2 {
+  color: var(--red);
+}
+.buffer-prose h1::before,
+.buffer-prose h2::before {
+  color: var(--grey);
 }
 .buffer-prose h1::before {
   content: '# ';
-  color: var(--iris);
-}
-
-.buffer-prose h2 {
-  color: var(--foam);
 }
 .buffer-prose h2::before {
   content: '## ';
-  color: var(--foam);
 }
 
 .buffer-prose h3 {
-  color: var(--rose);
-}
-.buffer-prose h3::before {
-  content: '### ';
-  color: var(--rose);
+  color: var(--orange);
 }
 
 .buffer-prose a {
-  color: var(--iris);
+  color: var(--blue);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .buffer-prose code {
-  color: var(--rose);
+  color: var(--orange);
 }
 
 .buffer-prose > * + * {
   margin-top: 1em;
 }
 
-/* Line-number gutter (SPEC.md §6.3): CSS counters over block-level children,
-   not real per-visual-line numbering — a deliberate simplification the spec
-   calls for. Each content block is wrapped `<div class="line">` so the
-   gutter number's ::before lives on a different element than a heading's
-   own `# ` prefix ::before — the two can't share one pseudo-element. Gutter
-   numbers are never real DOM text: unselectable and excluded from
-   copy-paste / screen-reader output by default in evergreen browsers, with
-   no aria-hidden attribute needed. */
+/* Line-number gutter (SPEC.md §6.3): CSS counters over block-level content,
+   not real per-visual-line numbering — a deliberate simplification. Numbers
+   must cover every block-level element, including individual list items,
+   so numbering reads continuous rather than floating (a v1 bug: a whole
+   <ul> counted as one line, leaving its <li>s unnumbered). Apply the `.line`
+   class to anything that should get its own gutter number: a wrapper
+   `<div class="line">` around a paragraph/heading, or directly on an `<li>`.
+   `.line`'s own ::before holds the number, so it can't collide with a
+   heading's separate `# ` prefix ::before living on the h1/h2 itself.
+   Numbers are never real DOM text: unselectable, excluded from copy-paste /
+   screen-reader output by default in evergreen browsers. */
 @media (max-width: 480px) {
   .buffer-gutter .line::before {
     content: none;
@@ -197,7 +199,7 @@ body {
   top: 0;
   width: 2.5rem;
   text-align: right;
-  color: var(--muted);
+  color: var(--grey);
   user-select: none;
 }
 
@@ -206,8 +208,8 @@ body {
   left: -9999px;
   top: 0;
   z-index: 100;
-  background: var(--overlay);
-  color: var(--text);
+  background: var(--bg2);
+  color: var(--fg);
   padding: 0.5rem 1rem;
 }
 

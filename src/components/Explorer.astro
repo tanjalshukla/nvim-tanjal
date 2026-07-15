@@ -1,11 +1,10 @@
 ---
 // File-explorer sidebar (SPEC.md §6.1): primary nav, nvim-tree style, always
-// expanded. Desktop renders a fixed left column; below 1024px the same tree
-// renders inside a native <details> drawer so it's keyboard/AT-clean without
-// the island. The <summary> is styled to read as the statusline's "≡ files"
-// segment (Statusline.astro positions this component inline in its row).
+// expanded, living *inside* the bounded window (§6.0) — not viewport-fixed.
+// Desktop renders a flex-child column; below desktop it's a native
+// <details> drawer (keyboard/AT-clean without the island), opened by the
+// statusline's "≡ files" button or the island's `Space e` binding.
 import ExplorerTree from './ExplorerTree.astro';
-import { explorerTree } from '../../site.config';
 
 interface Props {
   currentPath: string;
@@ -18,37 +17,59 @@ const { currentPath, mode = 'desktop' } = Astro.props;
 {
   mode === 'desktop' ? (
     <nav aria-label="explorer" class="explorer-desktop">
-      <ExplorerTree nodes={explorerTree} currentPath={currentPath} />
+      <p class="explorer-root" aria-hidden="true">
+        ~/tanjal
+      </p>
+      <ExplorerTree currentPath={currentPath} />
     </nav>
   ) : (
-    <details class="explorer-drawer">
+    <details class="explorer-drawer" id="explorer-drawer">
       <summary class="explorer-drawer-trigger">
-        <span aria-hidden="true">≡</span> files
+        <svg
+          class="explorer-drawer-icon"
+          viewBox="0 0 16 16"
+          width="1em"
+          height="1em"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          aria-hidden="true"
+        >
+          <line x1="2" y1="4" x2="14" y2="4" />
+          <line x1="2" y1="8" x2="14" y2="8" />
+          <line x1="2" y1="12" x2="14" y2="12" />
+        </svg>
+        files
       </summary>
       <nav aria-label="explorer" class="explorer-drawer-panel">
-        <ExplorerTree nodes={explorerTree} currentPath={currentPath} />
+        <p class="explorer-root" aria-hidden="true">
+          ~/tanjal
+        </p>
+        <ExplorerTree currentPath={currentPath} />
       </nav>
     </details>
   )
 }
 
 <style>
+  .explorer-root {
+    color: var(--cyan);
+    margin-bottom: 0.5rem;
+  }
+
   .explorer-desktop {
     display: none;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 768px) {
     .explorer-desktop {
       display: block;
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      width: 15rem;
+      flex-shrink: 0;
+      width: 220px;
       overflow-y: auto;
-      background: var(--surface);
-      padding: 1.5rem 1rem;
-      border-right: 1px solid var(--hl-high);
+      background: var(--bg-d);
+      padding: 1.25rem 1rem;
+      border-right: 1px solid var(--bg3);
     }
   }
 
@@ -56,15 +77,18 @@ const { currentPath, mode = 'desktop' } = Astro.props;
     position: relative;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 768px) {
     .explorer-drawer {
       display: none;
     }
   }
 
   .explorer-drawer-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
     cursor: pointer;
-    color: var(--subtle);
+    color: var(--light-grey);
     list-style: none;
   }
 
@@ -73,14 +97,14 @@ const { currentPath, mode = 'desktop' } = Astro.props;
   }
 
   .explorer-drawer-trigger:hover {
-    color: var(--text);
+    color: var(--fg);
   }
 
   .explorer-drawer[open] .explorer-drawer-panel {
     position: fixed;
     inset: 0;
     z-index: 50;
-    background: var(--overlay);
+    background: var(--bg-d);
     padding: 1.5rem;
     overflow-y: auto;
   }

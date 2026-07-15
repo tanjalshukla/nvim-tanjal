@@ -12,7 +12,10 @@ const lastEdited = '2026-07-15';
   currentPath="/now"
 >
   <div class="line">
-    <p class="last-edited">last edited: {lastEdited}</p>
+    <p class="last-edited">
+      <span class="last-edited-label">last edited:</span>
+      <span class="last-edited-date">{lastEdited}</span>
+    </p>
   </div>
   <div class="line">
     <h1>now.md</h1>
@@ -23,8 +26,8 @@ const lastEdited = '2026-07-15';
   <div class="line">
     <p>
       Working through a six-project arc in Rust and Go, aimed at {siteConfig.focus}. Currently on
-      TODO(owner): name the current project (SPEC.md §14 item 5) — TODO(owner): one honest
-      paragraph on where it stands.
+      TODO(owner): name the current project (SPEC.md §14 item 4) — TODO(owner): one honest paragraph
+      on where it stands.
     </p>
   </div>
   <div class="line">
@@ -43,15 +46,22 @@ const lastEdited = '2026-07-15';
   </div>
   <div class="line">
     <p>
-      Currently about a third of the way through <em>{siteConfig.reading}</em>. Full log, queue,
-      and finished books live on <a href="/library">library.md</a>.
+      Currently about a third of the way through <em>{siteConfig.reading}</em>. Full log, queue, and
+      finished books live on <a href="/library">library.md</a>.
     </p>
   </div>
 </Buffer>
 
 <style>
   .last-edited {
-    color: var(--muted);
     font-size: 0.8125rem;
+  }
+
+  .last-edited-label {
+    color: var(--purple);
+  }
+
+  .last-edited-date {
+    color: var(--orange);
   }
 </style>
