@@ -73,6 +73,13 @@ const { currentPath, mode = 'desktop' } = Astro.props;
     }
   }
 
+  /* Space e at desktop width (island sets/clears this attribute): collapse
+     the sidebar, nvim-tree style. Higher specificity than the media rule
+     above, so it wins regardless of order. */
+  :global(html[data-explorer-hidden]) .explorer-desktop {
+    display: none;
+  }
+
   .explorer-drawer {
     position: relative;
   }
@@ -100,11 +107,16 @@ const { currentPath, mode = 'desktop' } = Astro.props;
     color: var(--fg);
   }
 
+  /* Stops above the bottom dock (statusline + cmdline, ~5.5rem) instead of
+     covering inset:0 — the `files` <summary> that closes this drawer lives
+     in the statusline, and a full-screen panel at a higher z-index would
+     bury the only no-JS way to close it. */
   .explorer-drawer[open] .explorer-drawer-panel {
     position: fixed;
-    inset: 0;
+    inset: 0 0 5.5rem 0;
     z-index: 50;
     background: var(--bg-d);
+    border-bottom: 1px solid var(--bg3);
     padding: 1.5rem;
     overflow-y: auto;
   }

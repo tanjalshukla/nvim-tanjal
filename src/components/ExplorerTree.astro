@@ -7,7 +7,8 @@
 // trailing space before the filename can never get crowded out regardless
 // of font metrics (the actual v1 bug, despite the content string already
 // including a trailing space).
-import { buffers } from '../../site.config';
+import { buffers, siteConfig } from '../../site.config';
+import ExternalLinkIcon from './ExternalLinkIcon.astro';
 
 interface Props {
   currentPath: string;
@@ -30,6 +31,16 @@ const { currentPath } = Astro.props;
         </a>
       </li>
     ))
+  }
+  {
+    siteConfig.links.resume && (
+      <li>
+        <a href={siteConfig.links.resume} target="_blank" rel="noopener" class="tree-entry">
+          resume.pdf
+          <ExternalLinkIcon />
+        </a>
+      </li>
+    )
   }
 </ul>
 

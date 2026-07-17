@@ -1,15 +1,23 @@
-# SPEC — tanjal's personal site (Neovim · One Dark)
+# SPEC — tanjal's personal site (Neovim · custom near-black palette)
 
 > Living spec for AI-augmented development. The agent reads this file at the start of every session.
 > **LOCKED** sections are decided — do not relitigate. **OPEN** items need owner input (§14).
 > Companion files: `CLAUDE.md` (points here), `NOTES.md` (agent scratchpad + current milestone).
 
+> **v3 revision (Jul 2026)** — owner feedback: One Dark's desaturated blue-grey read "depressing"
+> next to sleeker reference sites (Vercel, Linear). Replaced the One Dark palette (sourced from
+> navarasu/onedark.nvim) with a custom near-black palette in the same spirit — see §5. Token names
+> are unchanged from v2; only values (and h1/h2's color role) changed, so no component structure
+> moved. Title stays "Neovim" — the chrome/interaction model is still a faithful Neovim
+> recreation; only the color identity is bespoke now, not sourced from a specific colorscheme.
+
 > **v2 revision (Jul 2026)** — supersedes v1; migrate existing code, don't treat the diff as drift:
-> theme Rosé Pine → **One Dark**; font Iosevka → **JetBrains Mono**; new **window-frame layout** (§6.0);
-> IA is now `index / now / library / research` — resume.pdf and about.md are **removed**, the neofetch
-> hero is **retired** (index = photo + about prose). Known v1 build bugs to fix during migration:
-> tree glyphs need a space before filenames; stray unspecced icons in the statusline must go;
-> gutter numbers should cover every block-level element so they don't float in isolation.
+> theme Rosé Pine → One Dark (superseded again by v3, above); font Iosevka → **JetBrains Mono**;
+> new **window-frame layout** (§6.0); IA is now `index / now / library / research` — resume.pdf and
+> about.md are **removed**, the neofetch hero is **retired** (index = photo + about prose). Known
+> v1 build bugs fixed during migration: tree glyphs need a space before filenames; stray unspecced
+> icons in the statusline must go; gutter numbers should cover every block-level element so they
+> don't float in isolation.
 
 ## 1. Concept — LOCKED
 
@@ -67,51 +75,71 @@ site.config.ts         # name, tagline, links, email, domain
 SPEC.md · NOTES.md · CLAUDE.md
 ```
 
-## 5. Design tokens — LOCKED (values from navarasu/onedark.nvim, `dark` style)
+## 5. Design tokens — LOCKED (v3: custom near-black palette, Vercel/Linear-inspired)
 
-### 5.1 One Dark (default)
+### 5.1 Dark (default)
 
 ```css
 :root[data-theme='dark'] {
-  --bg0: #282c34; /* buffer background */
-  --bg1: #31353f; /* cursorline, hover rows */
-  --bg2: #393f4a; /* raised panels, tab hover */
-  --bg3: #3b3f4c; /* selection, borders, winseparator */
-  --bg-d: #21252b; /* chrome: explorer, statusline, desktop */
-  --fg: #abb2bf; /* body text */
-  --grey: #5c6370; /* comments, gutter — DECORATIVE ONLY (fails AA on bg0) */
-  --light-grey: #848b98; /* secondary text, inactive entries */
-  --red: #e86671;
-  --green: #98c379;
-  --yellow: #e5c07b;
-  --orange: #d19a66;
-  --blue: #61afef;
-  --purple: #c678dd;
-  --cyan: #56b6c2;
+  --bg0: #0a0a0a; /* buffer/window background */
+  --bg1: #141414; /* cursorline, hover rows */
+  --bg2: #1c1c1e; /* raised panels, tab hover */
+  --bg3: #27272a; /* selection, borders, winseparator */
+  --bg-d: #050505; /* chrome: explorer, statusline, desktop behind the window */
+  --fg: #ededed; /* body text */
+  --grey: #5a5a60; /* comments, gutter — DECORATIVE ONLY (deliberately fails AA on bg0) */
+  --light-grey: #9a9aa2; /* secondary text, inactive entries */
+  --red: #f87171; /* errors/destructive ONLY — not headings (see 5.3) */
+  --green: #4ade80;
+  --yellow: #fbbf24;
+  --orange: #fb923c;
+  --blue: #7c81f7; /* primary accent: links, headings, focus ring */
+  --purple: #a78bfa;
+  --cyan: #22d3ee;
 }
 ```
 
 ### 5.2 Light theme
 
-One Light, sourced by the agent from the same repo's `palette.lua` (`light` style) at implementation time — do not invent values. Same variable names.
+```css
+:root[data-theme='light'] {
+  --bg0: #ffffff;
+  --bg1: #f5f5f5;
+  --bg2: #ececec;
+  --bg3: #e0e0e0;
+  --bg-d: #f0f0f0;
+  --fg: #171717;
+  --grey: #a3a3a3; /* DECORATIVE ONLY, same rule as dark */
+  --light-grey: #6b6b70;
+  --red: #dc2626;
+  --green: #15803d;
+  --yellow: #a16207;
+  --orange: #c2410c;
+  --blue: #4f46e5;
+  --purple: #7c3aed;
+  --cyan: #0e7490;
+}
+```
+
+All seven accent values (both themes) verified ≥4.5:1 (WCAG AA) against `bg0` for real text/icon use, and for `bg0`-on-accent (mode-block text-on-background) pairings. `grey` is the sole deliberate exception in both themes — decorative-only, must stay under AA.
 
 ### 5.3 Semantic mapping — deploy the palette like a highlighted buffer, not a wireframe
 
-The v1 build failed by rendering nearly everything in greys. Rule: **every screen must visibly use at least three accents**, assigned as One Dark uses them:
+The v1 build failed by rendering nearly everything in greys. Rule: **every screen must visibly use at least three accents**:
 
 - `bg0` buffer · `bg-d` chrome panes + desktop behind the window · `bg1` cursorline/hover · `bg3` `::selection` (with `fg`), borders, winseparators
 - `fg` body · `light-grey` secondary/inactive · `grey` strictly decorative (gutter numbers, `#` heading prefixes, comment-style asides)
-- `blue` — all links (underlined) and "function"-flavored accents
-- `red` — headings (bold), per One Dark's markdown convention; also errors/easter eggs
-- `green` — the statusline NORMAL block (lualine onedark convention), string-flavored accents (the tagline in quotes), git-add-flavored positives
+- `blue` — the **primary accent**: all links (underlined), h1/h2 headings, "function"-flavored accents, focus ring. (v3 change: headings moved off red — red is reserved strictly for errors/destructive now, the standard convention on sleek software products rather than doing double duty.)
+- `red` — errors, destructive actions, easter eggs (`:q`, `E492`) only
+- `green` — the statusline NORMAL block (lualine onedark convention, kept), string-flavored accents (the tagline in quotes), git-add-flavored positives
 - `purple` — VISUAL mode block, keyword-flavored labels (e.g., `last edited:`, list-group titles)
 - `yellow` — COMMAND mode block, highlights, in-progress markers
-- `orange` — numbers, dates, progress figures
+- `orange` — numbers, dates, progress figures, h3 headings
 - `cyan` — tags, metadata, tree folder accents
 
-Statusline mode blocks: match lualine's `onedark` theme — `NORMAL` green, `VISUAL` purple, `COMMAND` yellow, each with `bg0` text (agent verifies against the lualine theme source).
+Statusline mode blocks: `NORMAL` green, `VISUAL` purple, `COMMAND` yellow, each with `bg0` text.
 
-Type: everything JetBrains Mono. Content column `max-width: 80ch`; body 15–16px, line-height ≥ 1.7. Headings differ by color + weight, not exotic sizes: h1/h2 red bold prefixed `# `/`## ` (prefixes in `grey`, decorative `::before`, excluded from copy), h3 orange.
+Type: everything JetBrains Mono. Content column `max-width: 80ch`; body 15–16px, line-height ≥ 1.7. Headings differ by color + weight, not exotic sizes: h1/h2 blue bold prefixed `# `/`## ` (prefixes in `grey`, decorative `::before`, excluded from copy), h3 orange.
 
 ## 6. The chrome — LOCKED
 
@@ -129,7 +157,7 @@ Shows **buffers opened this session**, like a real bufferline. Static default: c
 
 ### 6.3 Buffer area
 
-`Buffer.astro`: line-number gutter left (CSS counters), content right, sits beside the explorer. Gutter numbers `grey`, `aria-hidden`, `user-select: none`, and cover **every block-level element** (paragraphs, headings, list items) so numbering reads continuous rather than floating. Gutter hides below ~480px. **Semantics test:** with CSS removed, every page reads as a plain, sensible document.
+`Buffer.astro`: line-number gutter left (CSS counters), content right, sits beside the explorer. Gutter numbers `grey`, `aria-hidden`, `user-select: none`, and cover **every block-level element** (paragraphs, headings, list items) so numbering reads continuous rather than floating. Gutter hides below ~480px. Empty space below the last content block is filled with a column of `~` tildes in `grey` down the gutter edge — exactly how Vim marks lines past end-of-buffer (decorative, `aria-hidden`, CSS repeating background or a static loop). **Semantics test:** with CSS removed, every page reads as a plain, sensible document.
 
 ### 6.4 Statusline (bottom of window, `<footer>`, sticky within it)
 
@@ -167,16 +195,16 @@ Fuzzy finder (Telescope-style): `bg-d` modal over the window, `> ` prompt, subse
 
 mitchellh.com is the register: short, dense, first-person paragraphs with inline links; no section scaffolding.
 
-- Top: photo (real, recognizable; squarish, sharp corners, 1px `bg3` border — rendered like a terminal image protocol) beside name (h1, red) and a one-line tagline in `green` string-quotes styling. Stacks on mobile.
-- Then 3–4 short paragraphs: what he does now (SDE @ Amazon — one sentence), what he's into (distributed systems, database internals, AI infra) and what he's building toward, one line on the UW → research → industry arc with "research" linked inline to `/research`, and optionally one line of non-work texture (OPEN §14).
+- Top: photo (real, recognizable; squarish, sharp corners, 1px `bg3` border — rendered like a terminal image protocol) beside name (h1, blue — v3 moved headings off red) and a one-line tagline in `green` string-quotes styling. Stacks on mobile.
+- Then 3–4 short paragraphs: what he does now (SDE @ Amazon — one sentence), what he's into (distributed systems, database internals, AI infra) and what he's building toward, one line on the UW → research → industry arc with "research" linked inline to `/research`, and a line of non-work texture (**resolved**: basketball + debugging compiler errors on a Rust database he's building, in his own words).
 - Footer flourish: the six-accent color strip `● ● ● ● ● ●` (red green yellow blue purple cyan) — the one decoration.
 - **Done when:** a stranger knows who he is without scrolling on desktop; photo has explicit dimensions (CLS 0); ≥3 accents visibly used; `:set ascii` still swaps the photo.
 
 ### 8.2 now.md — the beating heart
 
-/now-page tradition: casual, dated (`last edited: <date>` — label `purple`, date `orange`). Sections: **Building** (the current Rust/Go systems project — OPEN §14 — one honest paragraph), **Learning** (what the arc is teaching; day job ≤ one sentence), **Reading** (DDIA, ~⅓ through, linking library.md).
+/now-page tradition: casual, dated (`last edited: <date>` — label `purple`, date `orange`). Sections: **Learning** (what he's currently deep in; day job ≤ one sentence), **Reading** (DDIA, ~⅓ through, linking library.md). **Building dropped** (owner: naming a specific current project felt like a weird ask for a website; the Rust systems-programming thread lives instead as the personal-texture line on index.md).
 
-- **Done when:** one screen tells a stranger what he's building and reading _this month_; nothing reads like a resume.
+- **Done when:** one screen tells a stranger what he's learning and reading _this month_; nothing reads like a resume.
 
 ### 8.3 library.md — kept as-is from v1 (owner likes it)
 
@@ -229,13 +257,13 @@ One short blurb (2–3 sentences, owner verifies wording): at UW he researched A
 
 ## 14. OPEN — owner inputs
 
-| #   | Item                                                     | Needed by |
-| --- | -------------------------------------------------------- | --------- |
-| 1   | Domain (buy early) + final name/tagline wording          | M1v2      |
-| 2   | Headshot (high-res) — replaces the `photo pending` box   | M2        |
-| 3   | Hedwig landing page URL + paper URL                      | M2        |
-| 4   | Name of the current Rust/Go project ("building X")       | M2        |
-| 5   | GitHub/LinkedIn URLs; email to display                   | M2        |
-| 6   | index.md bio: owner voice pass on the drafted paragraphs | M2        |
-| 7   | Personal-texture line on index: include? What?           | M2        |
-| 8   | Dark default confirmed; One Light only via toggle?       | M1v2      |
+| #     | Item                                                      | Status                                                                         |
+| ----- | ----------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| 1     | Domain (buy early) + final name/tagline wording            | **Deferred** — owner will set at Vercel deploy time                               |
+| 2     | Headshot (high-res)                                        | **Resolved** — `src/assets/tanjal_picture.jpeg`, wired via astro:assets           |
+| 3     | Hedwig landing page URL + paper URL                        | **Resolved** — landing page + arXiv paper both set                                |
+| ~~4~~ | ~~Name of the current Rust/Go project~~                    | **Dropped** — owner: felt weird as a formal website feature; folded into #7       |
+| 5     | GitHub URL; LinkedIn URL; email to display                 | GitHub **resolved**; LinkedIn + email still open                                  |
+| 6     | index.md bio: owner voice pass on the drafted paragraphs   | Still open — most body paragraphs remain TODO(owner) scaffolding                  |
+| 7     | Personal-texture line on index: include? What?             | **Resolved** — basketball + debugging a Rust database, owner's own words          |
+| 8     | Dark default confirmed; light only via toggle?              | **Resolved** — dark is default, confirmed by implementation                       |

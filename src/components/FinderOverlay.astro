@@ -3,6 +3,11 @@
 // behavior (open/close, filtering, navigation) is wired by the island (M3).
 // Uses the combobox/listbox pattern so focus never has to leave the input:
 // arrow keys move `aria-activedescendant`, no real focus trap loop needed.
+//
+// .finder-item/.finder-empty styles (below) live in global.css, not this
+// scoped <style> block: every <li> in #finder-list is created at runtime by
+// the island via document.createElement, and dynamically-created elements
+// never get Astro's scoped-style attribute — scoped CSS can't reach them.
 ---
 
 <div
@@ -80,26 +85,5 @@
   .finder-list {
     list-style: none;
     overflow-y: auto;
-  }
-
-  .finder-item {
-    padding: 0.5rem 0.75rem;
-    color: var(--light-grey);
-    cursor: pointer;
-  }
-
-  .finder-item mark {
-    background: none;
-    color: var(--yellow);
-  }
-
-  .finder-item[aria-selected='true'] {
-    background: var(--bg1);
-    color: var(--fg);
-  }
-
-  .finder-empty {
-    padding: 0.75rem;
-    color: var(--grey);
   }
 </style>

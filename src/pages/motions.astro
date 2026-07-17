@@ -1,0 +1,120 @@
+---
+// motions.md — the full keymap/command reference as a real buffer (the
+// `:help`/`?` overlay shows the same content as a quick popup; this page is
+// the linkable, discoverable version). Everything here is also reachable by
+// plain links/taps — the keyboard layer is convenience, not a requirement.
+import Buffer from '../layouts/Buffer.astro';
+import { siteConfig } from '../../site.config';
+
+// TODO: [rewrite any `does` descriptions below in your own voice — keys/cmds
+// themselves must stay accurate to the island's bindings in cmdline.ts]
+const motions = [
+  { keys: 'j / k', does: 'scroll down / up' },
+  { keys: 'gg / G', does: 'jump to top / bottom' },
+  { keys: ']b / [b', does: 'next / previous buffer' },
+  { keys: 'L / H', does: 'next / previous buffer (LazyVim style)' },
+  { keys: 'Space e', does: 'toggle the file explorer (sidebar on desktop, drawer on mobile)' },
+  { keys: ':', does: 'open the command-line' },
+  { keys: '/', does: 'fuzzy finder (Telescope-style)' },
+  { keys: 'Space f f', does: 'fuzzy finder, the long way' },
+  { keys: '?', does: 'keymap overlay' },
+  { keys: 'Esc', does: 'close any overlay, restore focus' },
+];
+
+const commands = [
+  { cmd: ':e <file>', does: 'open a buffer — Tab completes file names' },
+  { cmd: ':e!', does: 'hard reload' },
+  { cmd: ':help', does: 'keymap overlay' },
+  { cmd: ':set bg=light | bg=dark', does: 'switch theme' },
+  { cmd: ':set ascii | noascii', does: 'index photo <-> ASCII art (persisted)' },
+  { cmd: ':q', does: 'try it' },
+  { cmd: ':q!', does: 'goodbye.' },
+];
+---
+
+<Buffer
+  title={`motions.md — ${siteConfig.name}`}
+  description="Every vim motion and command this site answers to."
+  currentPath="/motions"
+>
+  <div class="line">
+    <h1>motions.md</h1>
+  </div>
+  <div class="line">
+    <p>
+      These are the Vim motions this site supports. You can also toggle the overlay with <kbd>?</kbd
+      > or <kbd>:help</kbd> to see this list at any time.
+    </p>
+  </div>
+  <div class="line">
+    <h2 id="keymaps">keymaps</h2>
+  </div>
+  <dl class="motions-list">
+    {
+      motions.map((m) => (
+        <div class="line motions-row">
+          <dt>{m.keys}</dt>
+          <dd>{m.does}</dd>
+        </div>
+      ))
+    }
+  </dl>
+  <div class="line">
+    <h2 id="commands">commands</h2>
+  </div>
+  <dl class="motions-list">
+    {
+      commands.map((c) => (
+        <div class="line motions-row">
+          <dt>{c.cmd}</dt>
+          <dd>{c.does}</dd>
+        </div>
+      ))
+    }
+  </dl>
+  <div class="line">
+    <p class="motions-note">
+      Keys go quiet while an input has focus, and none of them touch browser shortcuts — no Ctrl/Cmd
+      combos are bound.
+    </p>
+  </div>
+</Buffer>
+
+<style>
+  .motions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .motions-row {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .motions-row dt {
+    color: var(--orange);
+    width: 13rem;
+    flex-shrink: 0;
+  }
+
+  .motions-row dd {
+    color: var(--fg);
+  }
+
+  @media (max-width: 480px) {
+    .motions-row {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .motions-row dt {
+      width: auto;
+    }
+  }
+
+  .motions-note {
+    color: var(--grey);
+    font-size: 0.8125rem;
+  }
+</style>

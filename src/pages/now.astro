@@ -2,43 +2,45 @@
 import Buffer from '../layouts/Buffer.astro';
 import { siteConfig } from '../../site.config';
 
-// TODO(owner): set/update this each time now.md's content actually changes.
+// TODO: [update this date whenever you edit this page's content]
 const lastEdited = '2026-07-15';
+
+// Versioning: before rewriting the page's content, snapshot what it said —
+// copy the outgoing text into a new entry at the TOP of this array (newest
+// first), stamped with the `lastEdited` date it was live under, then write
+// the new content in the markup below and bump `lastEdited`. Old entries
+// render under "## history" in muted styling; plain text only (no links) is
+// fine for archives. Empty array = no history section at all.
+type NowSnapshot = {
+  date: string;
+  sections: { heading: string; body: string }[];
+};
+
+const history: NowSnapshot[] = [];
 ---
 
 <Buffer
   title={`now.md — ${siteConfig.name}`}
-  description="What tanjal is building, learning, and reading right now."
+  description="What tanjal is learning and reading right now."
   currentPath="/now"
 >
   <div class="line">
     <p class="last-edited">
-      <span class="last-edited-label">last edited:</span>
-      <span class="last-edited-date">{lastEdited}</span>
+      <span class="last-edited-label">last edited:</span>{' '}<span class="last-edited-date"
+        >{lastEdited}</span
+      >
     </p>
   </div>
   <div class="line">
     <h1>now.md</h1>
   </div>
   <div class="line">
-    <h2 id="building">building</h2>
-  </div>
-  <div class="line">
-    <p>
-      Working through a six-project arc in Rust and Go, aimed at {siteConfig.focus}. Currently on
-      TODO(owner): name the current project (SPEC.md §14 item 4) — TODO(owner): one honest paragraph
-      on where it stands.
-    </p>
-  </div>
-  <div class="line">
     <h2 id="learning">learning</h2>
   </div>
   <div class="line">
     <p>
-      The arc is forcing real fluency in Rust's ownership model and Go's concurrency primitives —
-      the kind of thing that's easy to nod along to and hard to actually internalize without
-      building something that breaks. The day job ({siteConfig.role}) feeds into this at most
-      tangentially — TODO(owner): the one sentence, if there's a real connection worth naming.
+      I've been developing a Redis clone in Java as a side project, as well as learning Rust by
+      building a database with it. Who knows where that will go :).
     </p>
   </div>
   <div class="line">
@@ -46,10 +48,36 @@ const lastEdited = '2026-07-15';
   </div>
   <div class="line">
     <p>
-      Currently about a third of the way through <em>{siteConfig.reading}</em>. Full log, queue, and
+      Currently about half of the way through <em>{siteConfig.reading}</em>. Full log, queue, and
       finished books live on <a href="/library">library.md</a>.
     </p>
   </div>
+  {
+    history.length > 0 && (
+      <>
+        <div class="line">
+          <h2 id="history">history</h2>
+        </div>
+        <div class="line">
+          <p class="history-hint">what this page used to say — newest first.</p>
+        </div>
+        {history.map((snap) => (
+          <>
+            <div class="line">
+              <h3>{snap.date}</h3>
+            </div>
+            {snap.sections.map((s) => (
+              <div class="line">
+                <p class="history-body">
+                  <span class="history-heading">{s.heading}:</span> {s.body}
+                </p>
+              </div>
+            ))}
+          </>
+        ))}
+      </>
+    )
+  }
 </Buffer>
 
 <style>
@@ -63,5 +91,19 @@ const lastEdited = '2026-07-15';
 
   .last-edited-date {
     color: var(--orange);
+  }
+
+  /* Archived snapshots read like comments — present but visually retired. */
+  .history-hint {
+    color: var(--grey);
+    font-size: 0.8125rem;
+  }
+
+  .history-body {
+    color: var(--light-grey);
+  }
+
+  .history-heading {
+    color: var(--purple);
   }
 </style>

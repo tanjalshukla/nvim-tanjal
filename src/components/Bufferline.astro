@@ -2,6 +2,13 @@
 // Bufferline (SPEC.md §6.2): shows buffers opened *this session*. Static
 // default is the current file only — the island (M3) appends visited buffers
 // via sessionStorage and turns this into a real multi-tab bufferline.
+//
+// .bufferline/.buffer-tab/.buffer-marker styles live in global.css, not a
+// scoped <style> block here: the island rebuilds this nav's contents from
+// scratch once you've visited more than one buffer this session, and
+// elements created via document.createElement never get Astro's
+// scoped-style attribute — scoped CSS here would only ever style the
+// initial server-rendered tab, leaving every JS-added tab unstyled.
 import { resolveBuffer } from '../../site.config';
 
 interface Props {
@@ -21,35 +28,3 @@ const current = resolveBuffer(currentPath);
     {current.label}
   </a>
 </nav>
-
-<style>
-  .bufferline {
-    display: flex;
-    overflow-x: auto;
-    background: var(--bg-d);
-    border-bottom: 1px solid var(--bg3);
-  }
-
-  .buffer-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1rem;
-    color: var(--light-grey);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-
-  .buffer-tab-active {
-    color: var(--fg);
-    background: var(--bg0);
-  }
-
-  .buffer-marker {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 9999px;
-    background: var(--green);
-    flex-shrink: 0;
-  }
-</style>

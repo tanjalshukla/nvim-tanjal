@@ -10,6 +10,7 @@ import CommandLine from '../components/CommandLine.astro';
 import FinderOverlay from '../components/FinderOverlay.astro';
 import HelpOverlay from '../components/HelpOverlay.astro';
 import { siteConfig } from '../../site.config';
+import bannerSvg from '../assets/banner.svg?raw';
 
 interface Props {
   title: string;
@@ -18,6 +19,25 @@ interface Props {
 }
 
 const { title, description, currentPath } = Astro.props;
+
+const canonicalUrl = new URL(currentPath, siteConfig.domain).toString();
+const ogImageUrl = new URL('/og.png', siteConfig.domain).toString();
+
+// JSON-LD Person, homepage only (SPEC.md §10).
+const personJsonLd =
+  currentPath === '/'
+    ? JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: siteConfig.name,
+        url: siteConfig.domain,
+        email: siteConfig.email ? `mailto:${siteConfig.email}` : undefined,
+        jobTitle: 'Software Development Engineer',
+        worksFor: { '@type': 'Organization', name: 'Amazon' },
+        alumniOf: { '@type': 'CollegeOrUniversity', name: 'University of Washington' },
+        sameAs: [siteConfig.links.github, siteConfig.links.linkedin].filter(Boolean),
+      })
+    : null;
 ---
 
 <html lang="en">
@@ -25,12 +45,22 @@ const { title, description, currentPath } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={new URL(currentPath, siteConfig.domain).toString()} />
-    <!-- No-flash theme/ascii init: must run before first paint. Not the
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="sitemap" href="/sitemap.xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImageUrl} />
+    {personJsonLd && <script is:inline type="application/ld+json" set:html={personJsonLd} />}
+    <!-- No-flash theme init: must run before first paint. Not the
          keyboard island (§7) — a tiny, separate FOUC guard, same pattern as
          the theme-toggle click handler in Statusline.astro. -->
     <script is:inline>
@@ -42,19 +72,20 @@ const { title, description, currentPath } = Astro.props;
         } catch (e) {
           document.documentElement.setAttribute('data-theme', 'dark');
         }
-        try {
-          document.documentElement.setAttribute(
-            'data-ascii',
-            localStorage.getItem('ascii') === 'true' ? 'true' : 'false',
-          );
-        } catch (e) {
-          document.documentElement.setAttribute('data-ascii', 'false');
-        }
       })();
     </script>
   </head>
   <body class="bg-bg-d text-fg">
     <a href="#buffer-content" class="skip-link">Skip to content</a>
+    <!-- Site-wide masthead (owner call: keep it on every page). Solid
+         pixel-block wordmark modeled on the NEOVIM dashboard logo, inline
+         SVG from scripts/generate-banner.py so its var(--purple)/var(--bg2)
+         fills track the theme. -->
+    <div class="masthead">
+      <p class="sr-only">tanjal shukla</p>
+      <div class="masthead-mark" aria-hidden="true" set:html={bannerSvg} />
+      <hr class="masthead-rule" />
+    </div>
     <div class="window">
       <div class="window-body">
         <Explorer currentPath={currentPath} mode="desktop" />
@@ -64,6 +95,7 @@ const { title, description, currentPath } = Astro.props;
             <div class="buffer-prose">
               <slot />
             </div>
+            <div class="eob-fill" aria-hidden="true"></div>
           </main>
           <div class="bottom-dock">
             <Statusline currentPath={currentPath} />
@@ -85,13 +117,20 @@ const { title, description, currentPath } = Astro.props;
     background: var(--bg0);
     border: 1px solid var(--bg3);
     min-height: 88vh;
-    box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.35);
+    /* Layered, low-opacity shadow (Vercel/Linear-style crispness) rather
+       than one heavy blur — a single soft shadow reads flat against a
+       near-black page bg and heavy against a white one. */
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.06),
+      0 8px 24px rgb(0 0 0 / 0.12);
   }
 
   @media (min-width: 768px) {
     .window {
       max-width: 1080px;
-      margin: 2.5rem auto;
+      /* Top margin stays tight — the masthead directly above provides the
+         breathing room; bottom keeps the desktop visible under the window. */
+      margin: 1rem auto 2.5rem;
       border-radius: 4px;
     }
   }
@@ -110,6 +149,8 @@ const { title, description, currentPath } = Astro.props;
 
   .buffer-gutter {
     flex: 1;
+    display: flex;
+    flex-direction: column;
     padding-top: 1.25rem;
     padding-bottom: 2rem;
     padding-right: 1.5rem;
@@ -119,6 +160,39 @@ const { title, description, currentPath } = Astro.props;
   @media (min-width: 480px) {
     .buffer-gutter {
       padding-left: 3.25rem;
+    }
+  }
+
+  /* End-of-buffer fill (SPEC.md §6.3): real Vim marks every empty line past
+     EOF with a `~`. A flex sibling of .buffer-prose that grows to fill
+     exactly the remaining space below the last content block — never
+     overlaps real gutter numbers above it, and needs no JS to size itself.
+     A "static loop" per spec: a long fixed content string, clipped by
+     overflow:hidden to whatever height flexbox actually allocates it,
+     rather than a CSS background image (which can't cleanly pick up
+     var(--grey) across both themes the way plain text color can). Hidden
+     below 480px along with the rest of the gutter. */
+  .eob-fill {
+    display: none;
+  }
+
+  @media (min-width: 480px) {
+    .eob-fill {
+      display: block;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .eob-fill::before {
+      content: '~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A~\A';
+      display: block;
+      margin-left: -3.25rem;
+      width: 2.5rem;
+      text-align: right;
+      white-space: pre-line;
+      line-height: 1.7;
+      color: var(--grey);
+      user-select: none;
     }
   }
 

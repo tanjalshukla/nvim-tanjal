@@ -63,7 +63,7 @@ document.addEventListener('selectionchange', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Theme + ascii persisted settings
+// Theme persisted setting
 // ---------------------------------------------------------------------------
 
 function setTheme(theme: 'dark' | 'light') {
@@ -72,13 +72,6 @@ function setTheme(theme: 'dark' | 'light') {
     localStorage.setItem('theme', theme);
   } catch {}
   themeToggleIcon?.classList.toggle('is-light', theme === 'light');
-}
-
-function setAscii(on: boolean) {
-  document.documentElement.setAttribute('data-ascii', on ? 'true' : 'false');
-  try {
-    localStorage.setItem('ascii', on ? 'true' : 'false');
-  } catch {}
 }
 
 // ---------------------------------------------------------------------------
@@ -188,9 +181,17 @@ initSessionBuffers();
 // Explorer drawer (Space e)
 // ---------------------------------------------------------------------------
 
-function toggleExplorerDrawer() {
-  if (!explorerDrawer) return;
-  explorerDrawer.open = !explorerDrawer.open;
+// Space e (SPEC.md §7): below desktop it opens/closes the drawer; at
+// desktop width the drawer doesn't exist (the sidebar is always rendered),
+// so there it collapses/expands the sidebar instead — the nvim-tree toggle.
+// Session-only on purpose: a hidden explorer shouldn't persist to the next
+// visit the way the theme does.
+function toggleExplorer() {
+  if (window.matchMedia('(min-width: 768px)').matches) {
+    document.documentElement.toggleAttribute('data-explorer-hidden');
+  } else if (explorerDrawer) {
+    explorerDrawer.open = !explorerDrawer.open;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -215,6 +216,9 @@ function openCmdlineFrom(trigger: HTMLElement | null) {
 }
 
 function blurCmdline() {
+  // Clear on exit like real vim — without this, the executed (or abandoned)
+  // command lingers visibly in the always-present row.
+  if (cmdlineInput) cmdlineInput.value = '';
   cmdlineInput?.blur();
   if (lastCmdlineTrigger) {
     lastCmdlineTrigger.focus();
@@ -296,16 +300,6 @@ function runCommand(raw: string) {
     blurCmdline();
     return;
   }
-  if (cmd === 'set ascii') {
-    setAscii(true);
-    blurCmdline();
-    return;
-  }
-  if (cmd === 'set noascii') {
-    setAscii(false);
-    blurCmdline();
-    return;
-  }
   const eMatch = cmd.match(/^e\s+(\S+)$/i);
   if (eMatch) {
     const target = resolveBufferArg(eMatch[1]);
@@ -376,7 +370,6 @@ function buildFinderEntries(): FinderEntry[] {
   }));
 
   entries.push(
-    { label: 'now.md · building', path: '/now#building', external: false },
     { label: 'now.md · learning', path: '/now#learning', external: false },
     { label: 'now.md · reading', path: '/now#reading', external: false },
     { label: 'library.md · reading now', path: '/library#reading-now', external: false },
@@ -392,6 +385,8 @@ function buildFinderEntries(): FinderEntry[] {
     entries.push({ label: 'Hedwig landing page', path: siteConfig.links.hedwig, external: true });
   if (siteConfig.links.paper)
     entries.push({ label: 'paper', path: siteConfig.links.paper, external: true });
+  if (siteConfig.links.resume)
+    entries.push({ label: 'resume.pdf', path: siteConfig.links.resume, external: true });
 
   return entries;
 }
@@ -612,6 +607,11 @@ document.addEventListener('keydown', (e) => {
       blurCmdline();
       return;
     }
+    if (explorerDrawer?.open) {
+      e.preventDefault();
+      explorerDrawer.open = false;
+      return;
+    }
     return;
   }
 
@@ -631,6 +631,17 @@ document.addEventListener('keydown', (e) => {
     case 'G':
       e.preventDefault();
       window.scrollTo({ top: document.documentElement.scrollHeight, behavior: scrollBehavior() });
+      return;
+    // H/L cycle buffers — the LazyVim convention (lowercase h/l are cursor
+    // motions in real vim, so buffer switching lives on shift). Aliases for
+    // the spec's ]b/[b.
+    case 'H':
+      e.preventDefault();
+      cycleBuffer(-1);
+      return;
+    case 'L':
+      e.preventDefault();
+      cycleBuffer(1);
       return;
     case ':':
       e.preventDefault();
@@ -669,7 +680,7 @@ document.addEventListener('keydown', (e) => {
       cycleBuffer(-1);
       keyBuffer = [];
     } else if (t2[0] === ' ' && t2[1] === 'e') {
-      toggleExplorerDrawer();
+      toggleExplorer();
       keyBuffer = [];
     } else if (t3[0] === ' ' && t3[1] === 'f' && t3[2] === 'f') {
       openFinder(document.activeElement as HTMLElement);

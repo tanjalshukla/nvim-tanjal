@@ -19,8 +19,8 @@
       <div><dt>k</dt><dd>scroll up</dd></div>
       <div><dt>gg</dt><dd>top</dd></div>
       <div><dt>G</dt><dd>bottom</dd></div>
-      <div><dt>]b</dt><dd>next buffer</dd></div>
-      <div><dt>[b</dt><dd>previous buffer</dd></div>
+      <div><dt>]b / L</dt><dd>next buffer</dd></div>
+      <div><dt>[b / H</dt><dd>previous buffer</dd></div>
       <div><dt>Space e</dt><dd>toggle explorer</dd></div>
       <div><dt>:</dt><dd>command line</dd></div>
       <div><dt>/</dt><dd>fuzzy finder</dd></div>
@@ -34,11 +34,10 @@
       <div><dt>:e!</dt><dd>hard reload</dd></div>
       <div><dt>:help</dt><dd>this overlay</dd></div>
       <div><dt>:set bg=light|dark</dt><dd>theme</dd></div>
-      <div><dt>:set ascii|noascii</dt><dd>toggle ASCII photo</dd></div>
       <div><dt>:q</dt><dd>—</dd></div>
       <div><dt>:q!</dt><dd>—</dd></div>
     </dl>
-    <p class="help-close-hint">Esc to close</p>
+    <p class="help-close-hint">Esc to close · full reference: <a href="/motions">motions.md</a></p>
   </div>
 </div>
 
@@ -99,5 +98,11 @@
     margin-top: 1rem;
     color: var(--grey);
     font-size: 0.8125rem;
+  }
+
+  .help-close-hint a {
+    color: var(--blue);
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 </style>
