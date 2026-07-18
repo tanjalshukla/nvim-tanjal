@@ -6,6 +6,9 @@ and a Telescope-style fuzzy finder.
 
 **Link: [tanjalshukla.com](https://tanjalshukla.com)**
 
+[![The homepage rendered as a Neovim session]
+(docs/screenshot.png)](https://tanjalshukla.com)
+
 ## Try the motions
 
 You can also navigate normally, but the motions are the cool part. Maybe you can even learn Vim here!
