@@ -6,8 +6,7 @@ and a Telescope-style fuzzy finder.
 
 **Link: [tanjalshukla.com](https://tanjalshukla.com)**
 
-[![The homepage rendered as a Neovim session]
-(docs/screenshot.png)](https://tanjalshukla.com)
+[![The homepage rendered as a Neovim session — explorer sidebar, bufferline tabs, line-number gutter, and lualine statusline](docs/screenshot.png)](https://tanjalshukla.com)
 
 ## Try the motions
 
