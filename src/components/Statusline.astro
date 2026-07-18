@@ -1,12 +1,11 @@
 ---
 // Lualine-style statusline (SPEC.md §6.4): mode block · branch segment ·
-// buffer path · spacer · contact links · theme toggle · ≡ files (below
-// desktop only) · scroll % + Ln:Col. Nothing else — the v1 build had a
+// buffer path · spacer · contact links · theme toggle · scroll % + Ln:Col.
+// Nothing else — the v1 build had a
 // redundant cmdline-trigger button here that v2 explicitly calls out for
 // removal (the command-line row is now always visible, see
 // CommandLine.astro). Mode block and Ln:Col are static here; the island
 // (M3) makes them live.
-import Explorer from './Explorer.astro';
 import { siteConfig, resolveBuffer } from '../../site.config';
 
 interface Props {
@@ -136,7 +135,6 @@ const contacts: { icon: ContactIcon; href: string | null; title: string }[] = [
       </svg>
     </span>
   </button>
-  <Explorer currentPath={currentPath} mode="drawer" />
   <span class="scroll-segment" id="scroll-segment" aria-hidden="true">Top</span>
   <span class="lncol-segment" id="lncol-segment" aria-hidden="true">0:0</span>
 </footer>
@@ -173,7 +171,10 @@ const contacts: { icon: ContactIcon; href: string | null; title: string }[] = [
     background: var(--bg-d);
     border-top: 1px solid var(--bg3);
     font-size: 0.8125rem;
-    overflow-x: auto;
+    /* Never a horizontal scroller — real lualine truncates. The path
+       segment shrinks with ellipsis; decorative segments drop out below
+       640px so the essentials (mode, contacts, theme) always fit. */
+    overflow: hidden;
     white-space: nowrap;
   }
 
@@ -200,6 +201,18 @@ const contacts: { icon: ContactIcon; href: string | null; title: string }[] = [
 
   .path-segment {
     color: var(--light-grey);
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (max-width: 640px) {
+    .branch-segment,
+    .scroll-segment,
+    .lncol-segment {
+      display: none;
+    }
   }
 
   .statusline-spacer {

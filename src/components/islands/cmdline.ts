@@ -30,8 +30,6 @@ const cmdlineMessage = document.getElementById('cmdline-message');
 
 const themeToggleIcon = document.getElementById('theme-toggle-icon');
 
-const explorerDrawer = document.getElementById('explorer-drawer') as HTMLDetailsElement | null;
-
 const finderOverlay = document.getElementById('finder-overlay');
 const finderInput = document.getElementById('finder-input') as HTMLInputElement | null;
 const finderList = document.getElementById('finder-list');
@@ -159,7 +157,12 @@ function initSessionBuffers() {
   const list = getSessionBuffers();
   if (!list.includes(currentPath)) list.push(currentPath);
   saveSessionBuffers(list);
-  renderBufferline(list, currentPath);
+  // Desktop only: swap the static all-files bar for the vim-authentic
+  // session-buffers view. Below 768px the bufferline IS the primary nav
+  // (no sidebar, vim keys not assumed), so the full static list stays.
+  if (window.matchMedia('(min-width: 768px)').matches) {
+    renderBufferline(list, currentPath);
+  }
 }
 
 // SPEC.md §7: "]b/[b cycle open buffers (falls back to all files when only
@@ -181,16 +184,14 @@ initSessionBuffers();
 // Explorer drawer (Space e)
 // ---------------------------------------------------------------------------
 
-// Space e (SPEC.md §7): below desktop it opens/closes the drawer; at
-// desktop width the drawer doesn't exist (the sidebar is always rendered),
-// so there it collapses/expands the sidebar instead — the nvim-tree toggle.
+// Space e (SPEC.md §7): collapses/expands the desktop sidebar — the
+// nvim-tree toggle. Below 768px the sidebar doesn't render (the bufferline
+// top bar is the nav there), so this is a desktop-only binding.
 // Session-only on purpose: a hidden explorer shouldn't persist to the next
 // visit the way the theme does.
 function toggleExplorer() {
   if (window.matchMedia('(min-width: 768px)').matches) {
     document.documentElement.toggleAttribute('data-explorer-hidden');
-  } else if (explorerDrawer) {
-    explorerDrawer.open = !explorerDrawer.open;
   }
 }
 
@@ -605,11 +606,6 @@ document.addEventListener('keydown', (e) => {
     if (document.activeElement === cmdlineInput) {
       e.preventDefault();
       blurCmdline();
-      return;
-    }
-    if (explorerDrawer?.open) {
-      e.preventDefault();
-      explorerDrawer.open = false;
       return;
     }
     return;

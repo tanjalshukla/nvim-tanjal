@@ -1,15 +1,18 @@
 ---
-// Bufferline (SPEC.md §6.2): shows buffers opened *this session*. Static
-// default is the current file only — the island (M3) appends visited buffers
-// via sessionStorage and turns this into a real multi-tab bufferline.
+// Bufferline (SPEC.md §6.2) — doubles as the mobile top nav. Statically
+// renders ALL site files as tabs (plus resume.pdf), so every page is
+// reachable from the top bar with zero JS — this is the primary navigation
+// below 768px, where the desktop explorer sidebar doesn't render and vim
+// keys can't be assumed to work. On desktop (≥768px) the island (M3)
+// rebuilds this nav into the vim-authentic "buffers opened this session"
+// view via sessionStorage; on mobile it leaves this full list alone.
 //
 // .bufferline/.buffer-tab/.buffer-marker styles live in global.css, not a
 // scoped <style> block here: the island rebuilds this nav's contents from
-// scratch once you've visited more than one buffer this session, and
-// elements created via document.createElement never get Astro's
-// scoped-style attribute — scoped CSS here would only ever style the
-// initial server-rendered tab, leaving every JS-added tab unstyled.
-import { resolveBuffer } from '../../site.config';
+// scratch on desktop, and elements created via document.createElement never
+// get Astro's scoped-style attribute — scoped CSS here would only ever
+// style the server-rendered tabs, leaving every JS-added tab unstyled.
+import { buffers, siteConfig, resolveBuffer } from '../../site.config';
 
 interface Props {
   currentPath: string;
@@ -17,14 +20,56 @@ interface Props {
 
 const { currentPath } = Astro.props;
 const current = resolveBuffer(currentPath);
+const known = buffers.some((b) => b.path === currentPath);
 ---
 
 <nav aria-label="buffers" class="bufferline">
-  <a href={current.path} class="buffer-tab buffer-tab-active" aria-current="page">
-    <!-- CSS-drawn dot, not a unicode ● — JetBrains Mono doesn't include that
-         glyph (SPEC.md §2 covers this: plain unicode OR another approach;
-         a drawn circle sidesteps font coverage entirely). -->
-    <span class="buffer-marker" aria-hidden="true"></span>
-    {current.label}
-  </a>
+  {
+    /* 404 pages aren't in the buffer list — show their synthetic E212 tab
+       first so the full nav is still present behind it. */
+    !known && (
+      <a href={current.path} class="buffer-tab buffer-tab-active" aria-current="page">
+        <span class="buffer-marker" aria-hidden="true" />
+        {current.label}
+      </a>
+    )
+  }
+  {
+    buffers.map((b) => (
+      <a
+        href={b.path}
+        class={'buffer-tab' + (b.path === currentPath ? ' buffer-tab-active' : '')}
+        aria-current={b.path === currentPath ? 'page' : undefined}
+      >
+        {/* CSS-drawn dot, not a unicode ● — JetBrains Mono doesn't include
+            that glyph (SPEC.md §2: plain unicode OR another approach; a
+            drawn circle sidesteps font coverage entirely). */}
+        <span class="buffer-marker" aria-hidden="true" />
+        {b.label}
+      </a>
+    ))
+  }
+  {
+    siteConfig.links.resume && (
+      <a href={siteConfig.links.resume} target="_blank" rel="noopener" class="buffer-tab">
+        <svg
+          class="buffer-tab-ext"
+          viewBox="0 0 16 16"
+          width="0.75em"
+          height="0.75em"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6.5 3.5H3v9h9V9.5" />
+          <path d="M9 2.5h4.5V7" />
+          <path d="M13 3 7.5 8.5" />
+        </svg>
+        resume.pdf
+      </a>
+    )
+  }
 </nav>
