@@ -5,8 +5,7 @@
 export const siteConfig = {
   name: 'tanjal',
   tagline: 'SDE @ Amazon',
-  // TODO(owner): confirm real domain (SPEC.md §14 item 1) — owner will provide at Vercel deploy time.
-  domain: 'https://tanjal.dev',
+  domain: 'https://tanjalshukla.com',
   email: 'shuklatanjal@gmail.com' as string | null,
   links: {
     github: 'https://github.com/tanjalshukla' as string | null,
